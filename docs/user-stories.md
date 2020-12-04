@@ -33,7 +33,7 @@ There are 2 types of users in the system:
 - When a customer with a reserved Seating arrives at the restaurant, I can assign a tableNumber to their seating and set their status to "SEATED"
 - When a customer arrives at the restaurant, I want to view a summary of their previous visits to my restaurant so I have some information to greet them with (e.g. number of visits within last 6 months, date of last visit)
 - I can close a Seating whenever a Customer has finished their meal and vacated the table
-- I can record a list of OrderItems against a seating. Each order item
+- I can record a list of OrderItems against a seating. For v1, order items should just be an array of strings.
 - I will receive a weekly report via email every Monday morning detailing:
   - Total number of seatings during the past 7 days in my restaurant
   - Seating counts per each day of the week
