@@ -32,8 +32,13 @@ From ACCEPTED state a seating can transition to:
 
 - SEATED: A StaffUser welcomes the Customer at the restaurant, assigns a tableNumber and raises a SEATING_STATUS_CHANGED business event to EventBridge.
 
-
 From SEATED state a seating can transition to:
 
 - CLOSED: A StaffUser closes the seating when the Customer vacates the table, raising a SEATING_STATUS_CHANGED business event to EventBridge.
+
+## Generate weekly report to Admins
+
+Deliver a weekly report via email every Monday morning to Admin users detailing statistics about restaurant seatings during the past 7 days.
+
+![](./img/use-case-report-weekly-seatings.png)
 
