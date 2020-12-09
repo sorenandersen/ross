@@ -40,18 +40,22 @@ Data will reside in multiple tables, e.g. Users, Restaurants and Seatings.
 
 ## User roles
 
-The application supports two user roles:
+The application supports three user roles:
 
 - Customers
 - StaffUsers
+- Admins, i.e. restaurant owner
 
-Two Cognito groups are used to manage the permissions of these roles.
+Three Cognito groups are used to manage the permissions of these roles.
 
-Two Cognito app clients ensure that users are added to the correct group when signing up.
+Two Cognito app clients ensures access to Cognito API operations for client applications (frontend's) consuming the ROSS API.
 
-** Q: How will we actually ensure this? Either 1) An admin role should exist that verifies and activates new StaffUsers, or 2) StaffUsers should be created only via the AWS Cognito Console, by an admin with access to manage users and permissions. **
+Generally, Cognito will be used to store login credentials only and other user attributes and preferences will be stored in the DynamoDB "Users" table. However, to simplify the registring process for StaffUsers and Admins, the following custom attributes exist for StaffUsers and Admins in Cognito:
 
-Cognito will be used to store login credentials only. Other user attributes will be stored in a designated DynamoDB table.
+- restaurantId
+- restaurantRole
+
+_restaurantId_ will hold the id of the restaurant where the user is engaged. _restaurantRole_ can hold values STAFF or ADMIN.
 
 ## Client apps
 
