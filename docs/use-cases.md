@@ -18,6 +18,8 @@ Logged-in customers can create new seatings with a paticular restaurant. When pe
 
 ## Update seating status
 
+All seating status updates are handled by explicit HTTP endpoins for a given action, e.g. PATCH `/restaurants/{id}/seatings/{id}/accept` for a StaffUser accepting a seating currently in PENDING state.
+
 From PENDING state a seating can transition to:
 
 - ACCEPTED: A StaffUser accepts the seating. A similar process to "create seating" will start, with a SEATING_STATUS_CHANGED business event raised to EventBridge, resulting in the customer receiving an email notification that the seating was accepted by the restaurant.
