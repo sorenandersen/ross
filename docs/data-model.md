@@ -1,28 +1,36 @@
 # Data model
 
-NOTE: This is work in progress ...
+Listing of domain entities and their properties.
 
+## User
 
-User entity
+Properties:
+
 - id
 - email
-- type [Customer, StaffUser]
-- restaurant_id - for StaffUsers only
-- region - for Customers only
+- role [Admin, StaffUser, Customer]
+- restaurantId (for Admins and StaffUsers only)
+- region (for Customers only)
 
-Restaurant entity
+## Restaurant
+
+Properties:
+
 - id
-- owner_user_id
+- adminUserId
 - name
 - description
 - region
 - profilePhotoUrl
 - visibility [PRIVATE, PUBLIC]
 
-Seating entity
+## Seating
+
+Properties:
+
 - id
-- customer_id
-- restaurant_id
+- restaurantId
+- customerUserId
 - seatingTime
 - numSeats
 - notes
@@ -38,4 +46,3 @@ Seating statuses
 - DECLINED
 - SEATED
 - CLOSED
-
