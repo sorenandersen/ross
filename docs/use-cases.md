@@ -12,7 +12,28 @@ Work in progress ...
 
 ## Create seating
 
-Logged-in users can create new seatings with a paticular restaurant. When persisted, the user will receive an email acknowledgement and all StaffUsers at the restaurant will be notififed via email.
+Logged-in customers can create new seatings with a paticular restaurant. When persisted, the user will receive an email acknowledgement and all StaffUsers at the restaurant will be notififed via email.
 
 ![](./img/use-case-create-seating.png)
+
+## Update seating status
+
+From PENDING state a seating can transition to:
+
+- ACCEPTED: A StaffUser accepts the seating. A similar process to "create seating" will start, with a SEATING_STATUS_CHANGED business event raised to EventBridge, resulting in the customer receiving an email notification that the seating was accepted by the restaurant.
+
+- DECLINED: A StaffUser declines the seating. A similar process to "create seating" will start, with a SEATING_STATUS_CHANGED business event raised to EventBridge, resulting in the customer receiving an email notification that the seating was declined by the restaurant.
+
+From PENDING or ACCEPTED state a seating can transition to:
+
+- CANCELLED: A Customer cancels the seating. A similar process to "create seating" will start, with a SEATING_STATUS_CHANGED business event raised to EventBridge, resulting in the customer receiving an email acknowledgement and the restaurant receiving an email notification that the seating was cancelled by customer.
+
+From ACCEPTED state a seating can transition to:
+
+- SEATED: A StaffUser welcomes the Customer at the restaurant, assigns a tableNumber and raises a SEATING_STATUS_CHANGED business event to EventBridge.
+
+
+From SEATED state a seating can transition to:
+
+- CLOSED: A StaffUser closes the seating when the Customer vacates the table, raising a SEATING_STATUS_CHANGED business event to EventBridge.
 
