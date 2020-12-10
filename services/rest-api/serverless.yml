@@ -1,0 +1,50 @@
+service: ${self:custom.appName}-rest-api
+
+provider:
+  name: aws
+  region: ${file(../../common/infra/provider-settings.yml):region}
+  runtime: ${file(../../common/infra/provider-settings.yml):runtime}
+  stage: ${file(../../common/infra/provider-settings.yml):stage}
+  logRetentionInDays: ${file(../../common/infra/provider-settings.yml):logRetentionInDays}
+  logs:
+    httpApi: true
+  memorySize: 128
+  timeout: 6
+  environment:
+    STAGE: ${self:provider.stage}
+    REGION: ${self:provider.region}
+    LOG_LEVEL: ${self:custom.logLevel.${self:provider.stage}, self:custom.logLevel.default}
+    API_GW_DOMAIN: !Ref HttpApi
+  stackTags: # Stack-wide tags applied to all CF resourses that supports tags
+    PROJECT: ${file(../../common/infra/provider-settings.yml):appName}
+    SERVICE: ${self:service}
+
+custom:
+  appName: ${file(../../common/infra/provider-settings.yml):appName}
+  infraStack: ${self:custom.appName}-infra-${self:provider.stage}
+  awsAccountId: ${cf:${self:custom.infraStack}.AWSAccountId}
+  logLevel:
+    prod: WARN
+    default: DEBUG
+  webpack:
+    includeModules: false
+
+package:
+  individually: true
+
+functions:
+  # =================================================================
+  # API Gateway handlers
+  # =================================================================
+  # === /test
+  httpTestGet:
+    handler: src/handlers/http/test.handler
+    events:
+      - httpApi:
+          path: /test
+          method: GET
+
+plugins:
+  - serverless-webpack
+  - serverless-export-env
+  - serverless-iam-roles-per-function

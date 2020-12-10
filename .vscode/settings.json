@@ -1,0 +1,9 @@
+{
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.formatOnSave": true,
+  "editor.formatOnPaste": false,
+
+  "terminal.integrated.env.osx": {
+    "AWS_PROFILE": "testing-workshop-student"
+  }
+}

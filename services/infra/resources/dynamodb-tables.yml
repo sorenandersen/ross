@@ -1,0 +1,42 @@
+Resources:
+  UsersTable:
+    Type: AWS::DynamoDB::Table
+    #    DeletionPolicy: ${self:custom.deletionPolicy.${self:provider.stage}}
+    #    UpdateReplacePolicy: Retain
+    Properties:
+      TableName: ${self:custom.dynamoDbTablePrefix}-users
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: id
+          AttributeType: S
+      KeySchema:
+        - AttributeName: id
+          KeyType: HASH
+
+# TODO
+#  RestaturantsTable:
+#
+# TODO
+#  SeatingsTable:
+#    Properties:
+#      StreamSpecification:
+#        StreamViewType: NEW_IMAGE
+
+# TODO
+# Dead letter queue for failed DDB stream events
+#  DDBSeatingsStreamDLQ:
+#    Type: AWS::SQS::Queue
+
+Outputs:
+  DDBTableUsers:
+    Value: !Ref UsersTable
+#   DDBTableRestaurants:
+#     Value: !Ref RestaurantsTable
+#   DDBTableSeatings:
+#     Value: !Ref SeatingsTable
+#   DDBTableSeatingsStreamArn:
+#     Value: !GetAtt SeatingsTable.StreamArn
+#   DDBSeatingsStreamDLQ:
+#     Value: !Ref DDBSeatingsStreamDLQ
+#   DDBSeatingsStreamDLQArn:
+#     Value: !GetAtt DDBSeatingsStreamDLQ.Arn
