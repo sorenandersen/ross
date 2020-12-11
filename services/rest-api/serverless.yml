@@ -38,10 +38,18 @@ functions:
   # =================================================================
   # === /test
   httpTestGet:
-    handler: src/handlers/http/test.handler
+    handler: src/handlers/http/get-test.handler
     events:
       - httpApi:
           path: /test
+          method: GET
+
+  # === /me
+  httpMeGet:
+    handler: src/handlers/http/get-me.handler
+    events:
+      - httpApi:
+          path: /me
           method: GET
 
 plugins:

@@ -1,0 +1,23 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "allowJs": true,
+    "experimentalDecorators": true,
+    "outDir": "./dist",
+    "baseUrl": "./",
+    "paths": {
+      "@svc/*": ["./src/*"],
+      "@tests/*": ["./tests/*"],
+      "@common/*": ["../../common/src/*"]
+    }
+  },
+  "include": [
+    "src/**/*.js",
+    "tests/**/*.js",
+    "../../common/src/**/*.js",
+    "src/**/*.ts",
+    "tests/**/*.ts",
+    "../../common/src/**/*.ts"
+  ],
+  "exclude": ["./dist", "tests/lesson-examples/**"]
+}
