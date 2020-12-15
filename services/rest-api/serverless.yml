@@ -6,18 +6,27 @@ provider:
   runtime: ${file(../../common/infra/provider-settings.yml):runtime}
   stage: ${file(../../common/infra/provider-settings.yml):stage}
   logRetentionInDays: ${file(../../common/infra/provider-settings.yml):logRetentionInDays}
-  logs:
-    httpApi: true
   memorySize: 128
   timeout: 6
+  logs:
+    httpApi: true
+  httpApi:
+    authorizers:
+      cognitoJwtAuthorizer:
+        identitySource: $request.header.Authorization
+        issuerUrl: https://cognito-idp.${self:provider.region}.amazonaws.com/${cf:${self:custom.infraStack}.UserPoolId}
+        audience:
+          - ${cf:${self:custom.infraStack}.UserPoolStaffClientId}
+  stackTags: # Stack-wide tags applied to all CF resourses that supports tags
+    PROJECT: ${file(../../common/infra/provider-settings.yml):appName}
+    SERVICE: ${self:service}
   environment:
     STAGE: ${self:provider.stage}
     REGION: ${self:provider.region}
     LOG_LEVEL: ${self:custom.logLevel.${self:provider.stage}, self:custom.logLevel.default}
     API_GW_DOMAIN: !Ref HttpApi
-  stackTags: # Stack-wide tags applied to all CF resourses that supports tags
-    PROJECT: ${file(../../common/infra/provider-settings.yml):appName}
-    SERVICE: ${self:service}
+    COGNITO_USER_POOL_ID: ${cf:${self:custom.infraStack}.UserPoolId}
+    COGNITO_USER_POOL_STAFF_CLIENT_ID: ${cf:${self:custom.infraStack}.UserPoolStaffClientId}
 
 custom:
   appName: ${file(../../common/infra/provider-settings.yml):appName}
@@ -51,6 +60,7 @@ functions:
       - httpApi:
           path: /me
           method: GET
+          authorizer: cognitoJwtAuthorizer
 
 plugins:
   - serverless-webpack

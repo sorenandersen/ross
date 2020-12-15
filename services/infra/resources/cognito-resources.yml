@@ -13,16 +13,23 @@ Resources:
       UserPoolTags:
         PROJECT: ${file(../../common/infra/provider-settings.yml):appName}
         SERVICE: ${self:service}
+      Schema:
+        - AttributeDataType: String
+          Name: restaurantId
+        - AttributeDataType: String
+          Name: restaurantRole
 
   CognitoUserPoolStaffClient:
     Type: 'AWS::Cognito::UserPoolClient'
     #DeletionPolicy: Retain
     Properties:
-      ClientName: ${self:custom.appName}-staff-client-${self:provider.stage}
-      GenerateSecret: false
       UserPoolId: !Ref CognitoUserPool
+      ClientName: ${self:custom.appName}-staff-client-${self:provider.stage}
       ExplicitAuthFlows:
-        - USER_PASSWORD_AUTH
+        - ALLOW_USER_SRP_AUTH # Default and recommended authentication flow, using the Secure Remote Password protocol
+        - ALLOW_USER_PASSWORD_AUTH
+        - ALLOW_REFRESH_TOKEN_AUTH
+      PreventUserExistenceErrors: ENABLED # Vague errors on sign in; can't tell whether the user exsists from the error message, to prevent attackers from guessing user names
 
 Outputs:
   UserPoolId:

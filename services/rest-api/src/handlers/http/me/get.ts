@@ -7,14 +7,7 @@ import { APIGatewayProxyEventV2 } from 'aws-lambda';
  */
 export const handler = async (event: APIGatewayProxyEventV2) => {
   log.debug('/me called', { event });
-  // TODO revert
-  //const user = getUserFromClaims(event.requestContext.authorizer?.jwt.claims!);
-  const user = {
-    id: 'sub',
-    name: 'name',
-    email: 'email',
-    username: 'cognito:username',
-  };
+  const user = getUserFromClaims(event.requestContext.authorizer?.jwt.claims!);
   return {
     statusCode: 200,
     body: JSON.stringify(user),

@@ -51,3 +51,10 @@ npm run test-integration
 npm run test-e2e
 npm run test-all
 ```
+
+### Manual testing
+
+```
+# GET /me
+curl -H "Authorization: Bearer ACCESS_TOKEN" https://t75r6oj3pl.execute-api.eu-west-1.amazonaws.com/me -i
+```

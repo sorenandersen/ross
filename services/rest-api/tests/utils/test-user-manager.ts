@@ -9,7 +9,7 @@ import { generateTestUser, randomPassword } from './test-data-generator';
 export interface TestUserManagerConfig {
   usernamePrefix: string;
   cognitoUserPoolId: string;
-  cognitoUserPoolClientId: string;
+  cognitoUserPoolStaffClientId: string;
   region: string;
 }
 
@@ -87,7 +87,7 @@ export class TestUserManager {
       const signinResult = await this.cognitoIsp
         .initiateAuth({
           AuthFlow: 'USER_PASSWORD_AUTH',
-          ClientId: this.config.cognitoUserPoolClientId,
+          ClientId: this.config.cognitoUserPoolStaffClientId,
           AuthParameters: {
             USERNAME: user.username,
             PASSWORD: password,
@@ -99,7 +99,7 @@ export class TestUserManager {
       // Since this is only a test user, we'll just keep the same password.
       const challengeResp = await this.cognitoIsp
         .respondToAuthChallenge({
-          ClientId: this.config.cognitoUserPoolClientId,
+          ClientId: this.config.cognitoUserPoolStaffClientId,
           ChallengeName: 'NEW_PASSWORD_REQUIRED',
           Session: signinResult.Session,
           ChallengeResponses: {

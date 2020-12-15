@@ -27,7 +27,7 @@ export const eventBridgeConfig = {
 
 export const cognitoConfig = {
   userPoolId: getEnvString('COGNITO_USER_POOL_ID'),
-  userPoolClientId: getEnvString('COGNITO_USER_POOL_CLIENT_ID'),
+  userPoolStaffClientId: getEnvString('COGNITO_USER_POOL_STAFF_CLIENT_ID'),
 };
 
 export const apiGatewayConfig = {

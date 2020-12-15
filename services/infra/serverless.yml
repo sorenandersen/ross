@@ -49,14 +49,8 @@ resources:
   # TODO
   #    - ${file(resources/s3-cloudfront.yml)}
   #    - ${file(resources/sqs-resources.yml)}
-
   - Outputs:
       AWSAccountId:
         Value: !Ref 'AWS::AccountId'
       DynamoDBTablePrefix:
         Value: ${self:custom.dynamoDbTablePrefix}
-
-#functions:
-
-plugins:
-  - serverless-export-env
