@@ -46,7 +46,7 @@ functions:
 
   # === /me
   httpMeGet:
-    handler: src/handlers/http/get-me.handler
+    handler: src/handlers/http/me/get.handler
     events:
       - httpApi:
           path: /me
