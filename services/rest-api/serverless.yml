@@ -16,7 +16,7 @@ provider:
         identitySource: $request.header.Authorization
         issuerUrl: https://cognito-idp.${self:provider.region}.amazonaws.com/${cf:${self:custom.infraStack}.UserPoolId}
         audience:
-          - ${cf:${self:custom.infraStack}.UserPoolStaffClientId}
+          - ${cf:${self:custom.infraStack}.StaffUserPoolClientId}
   stackTags: # Stack-wide tags applied to all CF resourses that supports tags
     PROJECT: ${file(../../common/infra/provider-settings.yml):appName}
     SERVICE: ${self:service}
@@ -26,7 +26,8 @@ provider:
     LOG_LEVEL: ${self:custom.logLevel.${self:provider.stage}, self:custom.logLevel.default}
     API_GW_DOMAIN: !Ref HttpApi
     COGNITO_USER_POOL_ID: ${cf:${self:custom.infraStack}.UserPoolId}
-    COGNITO_USER_POOL_STAFF_CLIENT_ID: ${cf:${self:custom.infraStack}.UserPoolStaffClientId}
+    COGNITO_USER_POOL_CLIENT_ID_STAFF: ${cf:${self:custom.infraStack}.StaffUserPoolClientId}
+    COGNITO_USER_POOL_CLIENT_ID_CUSTOMER: TODO
 
 custom:
   appName: ${file(../../common/infra/provider-settings.yml):appName}

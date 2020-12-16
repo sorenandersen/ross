@@ -42,6 +42,17 @@ custom:
 package:
   individually: true
 
+functions:
+  # =================================================================
+  # Cognito handlers
+  # =================================================================
+  cognitoPostConfirmation:
+    handler: src/handlers/cognito/postConfirmation.handler
+    events:
+      - cognitoUserPool:
+          pool: RossUserPool
+          trigger: PostConfirmation
+
 resources:
   - ${file(resources/cognito-resources.yml)}
   - ${file(resources/dynamodb-tables.yml)}

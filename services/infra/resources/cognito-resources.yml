@@ -1,5 +1,5 @@
 Resources:
-  CognitoUserPool:
+  CognitoUserPoolRossUserPool:
     Type: AWS::Cognito::UserPool
     Properties:
       UserPoolName: ${self:custom.appName}-users-${self:provider.stage}
@@ -16,14 +16,22 @@ Resources:
       Schema:
         - AttributeDataType: String
           Name: restaurantId
+          Required: false
+          Mutable: true
         - AttributeDataType: String
           Name: restaurantRole
+          Required: false
+          Mutable: true
+      UsernameAttributes:
+        - email
+      AutoVerifiedAttributes:
+        - email
 
-  CognitoUserPoolStaffClient:
+  StaffUserPoolClient:
     Type: 'AWS::Cognito::UserPoolClient'
     #DeletionPolicy: Retain
     Properties:
-      UserPoolId: !Ref CognitoUserPool
+      UserPoolId: !Ref CognitoUserPoolRossUserPool
       ClientName: ${self:custom.appName}-staff-client-${self:provider.stage}
       ExplicitAuthFlows:
         - ALLOW_USER_SRP_AUTH # Default and recommended authentication flow, using the Secure Remote Password protocol
@@ -34,10 +42,10 @@ Resources:
 Outputs:
   UserPoolId:
     Description: ID of the User Pool
-    Value: !Ref CognitoUserPool
+    Value: !Ref CognitoUserPoolRossUserPool
   UserPoolArn:
     Description: ARN of the User Pool
-    Value: !GetAtt CognitoUserPool.Arn
-  UserPoolStaffClientId:
-    Description: ID of the User Pool Client
-    Value: !Ref CognitoUserPoolStaffClient
+    Value: !GetAtt CognitoUserPoolRossUserPool.Arn
+  StaffUserPoolClientId:
+    Description: ID of the Staff User Pool Client
+    Value: !Ref StaffUserPoolClient

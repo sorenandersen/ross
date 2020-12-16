@@ -11,7 +11,7 @@ const apiInvoker = new ApiGatewayHandlerInvoker({
 
 const userManager = new TestUserManager({
   cognitoUserPoolId: cognitoConfig.userPoolId,
-  cognitoUserPoolStaffClientId: cognitoConfig.userPoolStaffClientId,
+  cognitoUserPoolClientId: cognitoConfig.staffUserPoolClientId,
   region: AWS_REGION,
   usernamePrefix: 'get-me-test',
 });
