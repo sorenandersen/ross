@@ -28,6 +28,7 @@ provider:
     COGNITO_USER_POOL_ID: ${cf:${self:custom.infraStack}.UserPoolId}
     COGNITO_USER_POOL_CLIENT_ID_STAFF: ${cf:${self:custom.infraStack}.StaffUserPoolClientId}
     COGNITO_USER_POOL_CLIENT_ID_CUSTOMER: TODO
+    EVENTBRIDGE_SERVICE_BUS_NAME: ${cf:${self:custom.infraStack}.ServiceBus}
 
 custom:
   appName: ${file(../../common/infra/provider-settings.yml):appName}
@@ -62,6 +63,26 @@ functions:
           path: /me
           method: GET
           authorizer: cognitoJwtAuthorizer
+
+  # =================================================================
+  # EventBridge handlers
+  # =================================================================
+  ebNotifyMemberJoined:
+    handler: src/handlers/eventbridge/create-user.handler
+    events:
+      - eventBridge:
+          eventBus: ${cf:${self:custom.infraStack}.ServiceBusArn}
+          pattern:
+            source:
+              - infra
+            detail-type:
+              - USER_CREATED
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:PutItem
+        Resource:
+          - arn:aws:dynamodb:${self:provider.region}:${self:custom.awsAccountId}:table/${cf:${self:custom.infraStack}.DDBTableUsers}*
 
 plugins:
   - serverless-webpack

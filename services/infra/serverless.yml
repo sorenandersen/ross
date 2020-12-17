@@ -7,31 +7,40 @@ provider:
   runtime: ${file(../../common/infra/provider-settings.yml):runtime}
   stage: ${file(../../common/infra/provider-settings.yml):stage}
   logRetentionInDays: ${file(../../common/infra/provider-settings.yml):logRetentionInDays}
-  environment:
-    STAGE: ${self:provider.stage}
+  memorySize: 128
+  timeout: 6
+  logs:
+    httpApi: true
   stackTags: # Stack-wide tags applied to all CF resourses that supports tags
     PROJECT: ${file(../../common/infra/provider-settings.yml):appName}
     SERVICE: ${self:service}
-# TODO
-#   stackPolicy:
-#     - Effect: Allow
-#       Principal: '*'
-#       Action: 'Update:*'
-#       Resource: '*'
-#     # Prevent CloudFormation from replacing or deleting DynamoDB tables
-#     - Effect: Deny
-#       Principal: '*'
-#       Resource: '*'
-#       Condition:
-#         StringEquals:
-#           ResourceType:
-#             - AWS::DynamoDB::Table
-#       Action:
-#         - Update:Replace
+  # TODO
+  #   stackPolicy:
+  #     - Effect: Allow
+  #       Principal: '*'
+  #       Action: 'Update:*'
+  #       Resource: '*'
+  #     # Prevent CloudFormation from replacing or deleting DynamoDB tables
+  #     - Effect: Deny
+  #       Principal: '*'
+  #       Resource: '*'
+  #       Condition:
+  #         StringEquals:
+  #           ResourceType:
+  #             - AWS::DynamoDB::Table
+  #       Action:
+  #         - Update:Replace
+  environment:
+    STAGE: ${self:provider.stage}
+    REGION: ${self:provider.region}
+    EVENTBRIDGE_SERVICE_BUS_NAME: ${self:custom.serviceBus.name}
 
 custom:
   appName: ${file(../../common/infra/provider-settings.yml):appName}
   dynamoDbTablePrefix: ${self:custom.appName}-${self:provider.stage}
+  serviceBus:
+    name: !Ref ServiceBus
+    arn: !GetAtt ServiceBus.Arn
   webpack:
     includeModules: false
   deletionPolicy:
@@ -52,6 +61,10 @@ functions:
       - cognitoUserPool:
           pool: RossUserPool
           trigger: PostConfirmation
+    iamRoleStatements:
+      - Effect: Allow
+        Action: events:PutEvents
+        Resource: ${self:custom.serviceBus.arn}
 
 resources:
   - ${file(resources/cognito-resources.yml)}
@@ -65,3 +78,7 @@ resources:
         Value: !Ref 'AWS::AccountId'
       DynamoDBTablePrefix:
         Value: ${self:custom.dynamoDbTablePrefix}
+
+plugins:
+  - serverless-webpack
+  - serverless-iam-roles-per-function

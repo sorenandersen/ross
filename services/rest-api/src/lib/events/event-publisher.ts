@@ -1,0 +1,62 @@
+import {
+  EventBridgeClient,
+  PutEventsCommand,
+  PutEventsResponse,
+  PutEventsRequest,
+} from '@aws-sdk/client-eventbridge';
+import log from '@dazn/lambda-powertools-logger';
+import { eventBridgeConfig, AWS_REGION } from '@svc/config';
+import {
+  EventDetailType,
+  PublishableEventDetail,
+} from '@svc/lib/types/ross-types';
+
+const { serviceBusName, defaultSource } = eventBridgeConfig;
+const ebClient = new EventBridgeClient({ region: AWS_REGION });
+
+/**
+ * Light wrapper around EventBridge PutEvents SDK call to populate some default fields
+ * and enforce type of event detail.
+ */
+export const publishEvents = async (
+  events: PublishableEventDetail[],
+  detailType: EventDetailType,
+  source = defaultSource,
+) => {
+  const publishRequest: PutEventsRequest = {
+    Entries: events.map((e) => {
+      return {
+        EventBusName: serviceBusName,
+        Source: source,
+        DetailType: detailType,
+        Detail: JSON.stringify(e),
+      };
+    }),
+  };
+  let result: PutEventsResponse;
+  try {
+    result = await ebClient.send(new PutEventsCommand(publishRequest));
+  } catch (error) {
+    log.error(
+      'Error publishing events to EventBridge',
+      { publishRequest },
+      error,
+    );
+    throw error;
+  }
+  if (result.FailedEntryCount) {
+    log.error('Error publishing one or more events to EventBridge', {
+      publishRequest,
+      result,
+    });
+    throw new Error('Error publishing one or more events to EventBridge');
+  }
+  log.debug('Published events to EventBridge', { publishRequest, result });
+  return result;
+};
+
+export const publishEvent = async (
+  event: PublishableEventDetail,
+  detailType: EventDetailType,
+  source = defaultSource,
+) => publishEvents([event], detailType, source);
