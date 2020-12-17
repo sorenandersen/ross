@@ -1,10 +1,7 @@
-const {
-  EventBridgeClient,
-  PutEventsCommand,
-} = require('@aws-sdk/client-eventbridge');
+const EventBridge = require('aws-sdk/clients/eventbridge');
 const log = require('@dazn/lambda-powertools-logger');
 const { EVENTBRIDGE_SERVICE_BUS_NAME, AWS_REGION } = process.env;
-const ebClient = new EventBridgeClient({ region: AWS_REGION });
+const ebClient = new EventBridge({ region: AWS_REGION });
 
 module.exports.handler = async (event) => {
   if (event.triggerSource === 'PostConfirmation_ConfirmSignUp') {
@@ -28,7 +25,7 @@ module.exports.handler = async (event) => {
 
     let result;
     try {
-      result = await ebClient.send(new PutEventsCommand(publishRequest));
+      result = await ebClient.putEvents(publishRequest).promise();
     } catch (error) {
       log.error(
         'Error publishing events to EventBridge',
@@ -44,7 +41,10 @@ module.exports.handler = async (event) => {
       });
       throw new Error('Error publishing one or more events to EventBridge');
     }
-    log.debug('Published events to EventBridge', { publishRequest, result });
+    log.debug('Published events to EventBridge', {
+      publishRequest,
+      result,
+    });
   }
 
   return event;
