@@ -3,6 +3,8 @@ Resources:
     Type: AWS::Cognito::UserPool
     Properties:
       UserPoolName: ${self:custom.appName}-users-${self:provider.stage}
+      UsernameConfiguration:
+        CaseSensitive: False
       Policies:
         PasswordPolicy:
           MinimumLength: 12
