@@ -16,7 +16,8 @@
     "test-unit": "cd ./services/rest-api && jest -c jest.config.unit.js",
     "test-integration": "cd ./services/rest-api && TEST_MODE=LOCAL_HANDLER jest -c jest.config.integration.js -t '^(?!.*(\\[e2e\\])).*$'",
     "test-e2e": "cd ./services/rest-api && TEST_MODE=REMOTE_TRIGGER jest -c jest.config.e2e.js -t '^(?!.*(\\[integration\\])).*$'",
-    "test-all": "npm run test-unit && npm run test-integration && npm run test-e2e"
+    "test-all": "npm run test-unit && npm run test-integration && npm run test-e2e",
+    "slsdt": "sls-dev-tools"
   },
   "repository": {
     "type": "git",
@@ -38,6 +39,7 @@
     "serverless-export-env": "^1.4.0",
     "serverless-iam-roles-per-function": "^3.0.1",
     "serverless-webpack": "^5.3.5",
+    "sls-dev-tools": "^1.1.11",
     "ts-jest": "^26.4.4",
     "ts-loader": "^8.0.12",
     "tsconfig-paths-webpack-plugin": "^3.3.0",
