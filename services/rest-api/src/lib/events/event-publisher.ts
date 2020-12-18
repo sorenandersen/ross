@@ -1,9 +1,4 @@
-import {
-  EventBridgeClient,
-  PutEventsCommand,
-  PutEventsResponse,
-  PutEventsRequest,
-} from '@aws-sdk/client-eventbridge';
+import EventBridge, { PutEventsResponse } from 'aws-sdk/clients/eventbridge';
 import log from '@dazn/lambda-powertools-logger';
 import { eventBridgeConfig, AWS_REGION } from '@svc/config';
 import {
@@ -12,7 +7,7 @@ import {
 } from '@svc/lib/types/ross-types';
 
 const { serviceBusName, defaultSource } = eventBridgeConfig;
-const ebClient = new EventBridgeClient({ region: AWS_REGION });
+const ebClient = new EventBridge({ region: AWS_REGION });
 
 /**
  * Light wrapper around EventBridge PutEvents SDK call to populate some default fields
@@ -23,7 +18,7 @@ export const publishEvents = async (
   detailType: EventDetailType,
   source = defaultSource,
 ) => {
-  const publishRequest: PutEventsRequest = {
+  const publishRequest: EventBridge.Types.PutEventsRequest = {
     Entries: events.map((e) => {
       return {
         EventBusName: serviceBusName,
@@ -35,7 +30,7 @@ export const publishEvents = async (
   };
   let result: PutEventsResponse;
   try {
-    result = await ebClient.send(new PutEventsCommand(publishRequest));
+    result = await ebClient.putEvents(publishRequest).promise();
   } catch (error) {
     log.error(
       'Error publishing events to EventBridge',
