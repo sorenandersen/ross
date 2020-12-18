@@ -16,7 +16,7 @@ const userManager = new TestUserManager({
   usernamePrefix: 'get-me-test',
 });
 
-describe('`GET /me`', () => {
+describe.skip('`GET /me`', () => {
   it('returns user profile fields for logged in users', async () => {
     const userContext = await userManager.createAndSignInUser();
     const response = await apiInvoker.invoke({

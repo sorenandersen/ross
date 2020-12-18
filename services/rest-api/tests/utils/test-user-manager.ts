@@ -37,7 +37,7 @@ export class TestUserManager {
     });
   }
 
-  async createUser(password: string) {
+  async createUserWithPassword(password: string) {
     const userProfile = generateTestUser(this.config.usernamePrefix);
     const username = userProfile.email;
 
@@ -70,9 +70,15 @@ export class TestUserManager {
     return user;
   }
 
+  async createUser() {
+    const password = randomPassword();
+    const testUser = await this.createUserWithPassword(password);
+    return testUser;
+  }
+
   async createAndSignInUser() {
     const password = randomPassword();
-    const testUser = await this.createUser(password);
+    const testUser = await this.createUserWithPassword(password);
     return this.signInUser(testUser, password);
   }
 

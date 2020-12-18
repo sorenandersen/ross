@@ -17,7 +17,7 @@ export const STAGE = getEnvString('STAGE', true);
 export const AWS_REGION = getEnvString('REGION', true);
 
 export const ddbConfig = {
-  usersTable: getEnvString('DDB_TABLE_USERS'),
+  usersTable: getEnvString('DDB_TABLE_USERS', true),
 };
 
 export const eventBridgeConfig = {
