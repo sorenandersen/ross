@@ -28,6 +28,7 @@ provider:
     COGNITO_USER_POOL_ID: ${cf:${self:custom.infraStack}.UserPoolId}
     COGNITO_USER_POOL_CLIENT_ID_STAFF: ${cf:${self:custom.infraStack}.StaffUserPoolClientId}
     COGNITO_USER_POOL_CLIENT_ID_CUSTOMER: TODO
+    DDB_TABLE_USERS: ${cf:${self:custom.infraStack}.DDBTableUsers}
     EVENTBRIDGE_SERVICE_BUS_NAME: ${cf:${self:custom.infraStack}.ServiceBus}
 
 custom:
@@ -67,8 +68,8 @@ functions:
   # =================================================================
   # EventBridge handlers
   # =================================================================
-  ebNotifyMemberJoined:
-    handler: src/handlers/eventbridge/create-user.handler
+  ebProcessNewUser:
+    handler: src/handlers/eventbridge/process-new-user.handler
     events:
       - eventBridge:
           eventBus: ${cf:${self:custom.infraStack}.ServiceBusArn}
