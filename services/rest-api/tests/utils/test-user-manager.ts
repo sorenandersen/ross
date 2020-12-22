@@ -49,6 +49,8 @@ export class TestUserManager {
         UserAttributes: [
           { Name: 'name', Value: userProfile.name },
           { Name: 'email', Value: userProfile.email },
+          // TODO temp, delete once update implemented: { Name: 'custom:restaurantId', Value: 'foo' },
+          // TODO temp, delete once update implemented: { Name: 'custom:restaurantRole', Value: 'Admin' },
         ],
       })
       .promise();
