@@ -65,6 +65,15 @@ functions:
           method: GET
           authorizer: cognitoJwtAuthorizer
 
+  # === /me
+  httpRestaurantsPost:
+    handler: src/handlers/http/restaurants/post.handler
+    events:
+      - httpApi:
+          path: /restaurants
+          method: POST
+          authorizer: cognitoJwtAuthorizer
+
   # =================================================================
   # EventBridge handlers
   # =================================================================
