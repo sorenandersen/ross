@@ -1,8 +1,5 @@
-const DynamoDB = require('aws-sdk/clients/dynamodb');
-const DocumentClient = new DynamoDB.DocumentClient();
 const log = require('@dazn/lambda-powertools-logger');
-
-const { DDB_TABLE_USERS } = process.env;
+const { putUser } = require('../../lib/repos/ross-repo');
 
 module.exports.handler = async (event) => {
   log.debug('create-user event: ', { event });
@@ -14,9 +11,5 @@ module.exports.handler = async (event) => {
     createdAt: new Date().toJSON(),
   };
 
-  await DocumentClient.put({
-    TableName: DDB_TABLE_USERS,
-    Item: user,
-    ConditionExpression: 'attribute_not_exists(id)',
-  }).promise();
+  await putUser(user);
 };
