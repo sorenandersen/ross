@@ -18,6 +18,7 @@ export const AWS_REGION = getEnvString('REGION', true);
 
 export const ddbConfig = {
   usersTable: getEnvString('DDB_TABLE_USERS', true),
+  restaurantsTable: getEnvString('DDB_TABLE_RESTAURANTS', true),
 };
 
 export const eventBridgeConfig = {

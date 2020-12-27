@@ -29,6 +29,7 @@ provider:
     COGNITO_USER_POOL_CLIENT_ID_STAFF: ${cf:${self:custom.infraStack}.StaffUserPoolClientId}
     COGNITO_USER_POOL_CLIENT_ID_CUSTOMER: TODO
     DDB_TABLE_USERS: ${cf:${self:custom.infraStack}.DDBTableUsers}
+    DDB_TABLE_RESTAURANTS: ${cf:${self:custom.infraStack}.DDBTableRestaurants}
     EVENTBRIDGE_SERVICE_BUS_NAME: ${cf:${self:custom.infraStack}.ServiceBus}
 
 custom:
@@ -65,7 +66,7 @@ functions:
           method: GET
           authorizer: cognitoJwtAuthorizer
 
-  # === /me
+  # === /restaurants
   httpRestaurantsPost:
     handler: src/handlers/http/restaurants/post.handler
     events:
@@ -73,6 +74,12 @@ functions:
           path: /restaurants
           method: POST
           authorizer: cognitoJwtAuthorizer
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:PutItem
+        Resource:
+          - arn:aws:dynamodb:${self:provider.region}:${self:custom.awsAccountId}:table/${cf:${self:custom.infraStack}.DDBTableRestaurants}*
 
   # =================================================================
   # EventBridge handlers
