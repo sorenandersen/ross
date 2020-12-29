@@ -18,7 +18,7 @@ module.exports.handler = async (event) => {
           EventBusName: EVENTBRIDGE_SERVICE_BUS_NAME,
           Source: 'infra',
           DetailType: 'USER_CREATED',
-          Detail: JSON.stringify(user),
+          Detail: JSON.stringify({ user }),
         },
       ],
     };
