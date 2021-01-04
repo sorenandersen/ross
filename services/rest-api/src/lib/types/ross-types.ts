@@ -1,9 +1,7 @@
 export enum Region {
-  MANHATTAN = 'MANHATTAN',
-  BRONX = 'BRONX',
+  NOT_SPECIFIED = 'NOT_SPECIFIED',
   FOO = 'FOO',
   BAR = 'BAR',
-  TODO = 'TODO',
 }
 
 // ==== Users
@@ -32,7 +30,7 @@ export enum RestaurantAvailability {
 }
 
 export enum RestaurantApprovalStatus {
-  //PENDING_APPROVAL = 'PENDING_APPROVAL', // For a future version, a RossAdmin should approve new restaurants before managers can operate on them.
+  //PENDING_APPROVAL = 'PENDING_APPROVAL',
   APPROVED = 'APPROVED',
 }
 
@@ -42,7 +40,12 @@ export interface Restaurant {
   description: string;
   availability: RestaurantAvailability;
   region: Region;
-  profilePhotoUrl: string;
+  profilePhotoUrlPath?: string;
+  createdAt: string;
+
+  /** ID of the user who created the restaurant */
+  managerId: string;
+  /** For a future version, a RossAdmin should approve new restaurants before managers can operate on them */
   approvalStatus: RestaurantApprovalStatus;
 }
 
