@@ -41,7 +41,7 @@ export const handler = async (event: APIGatewayProxyEventV2) => {
 
   return {
     statusCode: 201,
-    headers: { Location: `/restaurants/${restaurant.id}` },
+    headers: { location: `/restaurants/${restaurant.id}` },
     body: JSON.stringify({ id: restaurant.id }),
   };
 };

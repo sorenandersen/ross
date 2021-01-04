@@ -68,7 +68,7 @@ describe('`POST /restaurants`', () => {
 
     // Verify response
     expect(response.statusCode).toEqual(201);
-    expect(response.headers.Location).toEqual(
+    expect(response.headers.location).toEqual(
       `/restaurants/${testRestaurantId}`,
     );
 
