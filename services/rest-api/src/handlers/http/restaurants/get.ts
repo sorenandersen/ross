@@ -28,7 +28,7 @@ export const handler = async (event: APIGatewayProxyEventV2) => {
     };
   }
 
-  const restaurant = getRestaurant(restaurantId);
+  const restaurant = await getRestaurant(restaurantId);
 
   return {
     statusCode: 200,

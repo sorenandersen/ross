@@ -16,6 +16,7 @@ export interface TestUserManagerConfig {
 export interface AuthenticatedUser {
   user: User;
   idToken: string;
+  refreshToken: string;
 }
 
 interface CreatedUserContext {
@@ -118,6 +119,7 @@ export class TestUserManager {
       return {
         user,
         idToken: signinResult.AuthenticationResult?.IdToken!,
+        refreshToken: signinResult.AuthenticationResult?.RefreshToken!,
       } as AuthenticatedUser;
     } catch (error) {
       console.error('Error signing in Cognito user', error);
@@ -125,7 +127,7 @@ export class TestUserManager {
     }
   }
 
-  async refreshUserToken(refreshToken: string) {
+  async refreshUserToken(user: User, refreshToken: string) {
     try {
       const refreshResult = await this.cognitoIsp
         .initiateAuth({
@@ -142,11 +144,9 @@ export class TestUserManager {
       }
 
       return {
+        user,
         idToken: refreshResult.AuthenticationResult?.IdToken!,
-
-        // TODO: Extend AuthenticatedUser to also carry RefreshToken
-        // **
-        // **
+        refreshToken,
       } as AuthenticatedUser;
     } catch (error) {
       console.error('Error refreshing token of Cognito user', error);

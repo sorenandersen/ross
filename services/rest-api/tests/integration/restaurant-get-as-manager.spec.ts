@@ -2,10 +2,7 @@ import { handler as postHandler } from '@svc/handlers/http/restaurants/post';
 import { handler as getHandler } from '@svc/handlers/http/restaurants/get';
 import { apiGatewayConfig, AWS_REGION, cognitoConfig } from '@svc/config';
 import { ApiGatewayHandlerInvoker } from '@tests/utils/handler-invokers/api-gateway-handler-invoker';
-import {
-  AuthenticatedUser,
-  TestUserManager,
-} from '@tests/utils/test-user-manager';
+import { TestUserManager } from '@tests/utils/test-user-manager';
 import { deleteRestaurant } from '@svc/lib/repos/ross-repo';
 import { Region, Restaurant } from '@svc/lib/types/ross-types';
 
@@ -33,7 +30,6 @@ interface TestRestaurant {
 }
 
 describe('`GET /restaurants/{id}`', () => {
-  let manager1Context: AuthenticatedUser;
   let createdRestaurantIds: string[] = [];
 
   const createTestRestaurant = (prefix: string) => {
@@ -52,11 +48,9 @@ describe('`GET /restaurants/{id}`', () => {
     createdRestaurantIds = [];
   };
 
-  beforeAll(async () => {
-    manager1Context = await userManager.createAndSignInUser();
-  });
-
   it('creates a new Restaurant but subsequent GET returns 403 if user does not refresh Cognito token', async () => {
+    const manager1Context = await userManager.createAndSignInUser();
+
     // **
     // ** Step 1: Create restaurant
     // **
@@ -97,7 +91,9 @@ describe('`GET /restaurants/{id}`', () => {
     expect(getResponse.statusCode).toEqual(403);
   });
 
-  it('creates a new Restaurant, refreshes users Cognito token and subsequent GET returns the restaurant', async () => {
+  it('creates a new Restaurant, refreshes users Cognito token and subsequent GET returns the restaurant [e2e]', async () => {
+    let manager2Context = await userManager.createAndSignInUser();
+
     // **
     // ** Step 1: Create restaurant
     // **
@@ -109,7 +105,7 @@ describe('`GET /restaurants/{id}`', () => {
         pathParameters: {},
         body: { ...testRestaurant },
       },
-      userContext: manager1Context,
+      userContext: manager2Context,
     });
 
     // Grab ID of created restaurant and store it so that we can later delete test restarants
@@ -125,7 +121,10 @@ describe('`GET /restaurants/{id}`', () => {
     // **
     // ** Step 2: Refresh users Cognito token
     // **
-    // TODO
+    manager2Context = await userManager.refreshUserToken(
+      manager2Context.user,
+      manager2Context.refreshToken,
+    );
 
     // **
     // ** Step 3: GET new restaurant from API
@@ -136,17 +135,17 @@ describe('`GET /restaurants/{id}`', () => {
         httpMethod: 'GET',
         pathParameters: { id: testRestaurantId },
       },
-      userContext: manager1Context,
+      userContext: manager2Context,
     });
 
     // Verify GET response
     expect(getResponse.statusCode).toEqual(200);
 
-    // Get new restaurant response body and verify
-    const savedRestaurant = JSON.parse(getResponse.body) as Restaurant;
+    // Get new restaurant from response body and verify
+    const savedRestaurant = getResponse.body as Restaurant;
     expect(savedRestaurant).toBeTruthy();
     expect(savedRestaurant!.name).toEqual(testRestaurant.name);
-    expect(savedRestaurant!.managerId).toEqual(manager1Context.user.id);
+    expect(savedRestaurant!.managerId).toEqual(manager2Context.user.id);
   });
 
   // E2E test: APIGW authorizer configuration
