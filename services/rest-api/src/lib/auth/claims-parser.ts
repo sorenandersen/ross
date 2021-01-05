@@ -10,8 +10,8 @@ export const getUserFromClaims = (claims: ClaimsMap) =>
     name: claims.name,
     email: claims.email,
     username: claims['cognito:username'],
-    // TODO: restaurantId: claims['custom:restaurantId'],
-    // TODO: restaurantRole: claims['custom:restaurantRole'],
+    restaurantId: claims['custom:restaurantId'],
+    restaurantRole: claims['custom:restaurantRole'],
   } as User);
 
 export const getClaimsFromUser = (user: User) => {
@@ -23,7 +23,7 @@ export const getClaimsFromUser = (user: User) => {
     name: user.name,
     'cognito:username': user.username,
     email: user.email,
-    // TODO: restaurantId,
-    // TODO: restaurantRole,
+    'custom:restaurantId': user.restaurantId,
+    'custom:restaurantRole': user.restaurantRole,
   };
 };

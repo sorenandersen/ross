@@ -56,5 +56,8 @@ npm run test-all
 
 ```
 # GET /me
-curl -H "Authorization: Bearer ACCESS_TOKEN" https://t75r6oj3pl.execute-api.eu-west-1.amazonaws.com/me -i
+curl -H "Authorization: Bearer ACCESS_TOKEN" https://dyugw0mhy0.execute-api.eu-west-1.amazonaws.com/me -i
+
+# POST /restaurants
+curl -X POST -H "Authorization: Bearer ACCESS_TOKEN" -H "Content-Type: application/json" -d '{"name":"test-curl-1", "description":"test-curl","region":"NOT_SPECIFIED"}' https://dyugw0mhy0.execute-api.eu-west-1.amazonaws.com/restaurants -i
 ```
