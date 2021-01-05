@@ -10,6 +10,7 @@ module.exports.handler = async (event) => {
       username: event.request.userAttributes.email,
       email: event.request.userAttributes.email,
       name: event.request.userAttributes.name,
+      createdAt: new Date().toISOString(),
     };
 
     const publishRequest = {

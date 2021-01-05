@@ -16,10 +16,13 @@ export interface UserProfile {
   username: string;
   email: string;
   name?: string;
+  createdAt: string;
 }
 
 export interface User extends UserProfile {
   id: string;
+  restaurantId?: string;
+  restaurantRole?: string;
 }
 
 // ==== Restaurants

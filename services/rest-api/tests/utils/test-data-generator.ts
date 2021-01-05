@@ -18,5 +18,6 @@ export const generateTestUser = (usernamePrefix: string) => {
     email,
     username: email,
     name: randomName(),
+    createdAt: new Date().toISOString(),
   } as UserProfile;
 };
