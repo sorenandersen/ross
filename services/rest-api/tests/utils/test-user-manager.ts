@@ -125,6 +125,35 @@ export class TestUserManager {
     }
   }
 
+  async refreshUserToken(refreshToken: string) {
+    try {
+      const refreshResult = await this.cognitoIsp
+        .initiateAuth({
+          AuthFlow: 'REFRESH_TOKEN_AUTH',
+          ClientId: this.config.cognitoUserPoolClientId,
+          AuthParameters: {
+            REFRESH_TOKEN: refreshToken,
+          },
+        })
+        .promise();
+
+      if (!refreshResult.AuthenticationResult) {
+        return Promise.reject(new Error('Token refresh failed'));
+      }
+
+      return {
+        idToken: refreshResult.AuthenticationResult?.IdToken!,
+
+        // TODO: Extend AuthenticatedUser to also carry RefreshToken
+        // **
+        // **
+      } as AuthenticatedUser;
+    } catch (error) {
+      console.error('Error refreshing token of Cognito user', error);
+      throw error;
+    }
+  }
+
   private async deleteUserData(userContext: CreatedUserContext) {
     if (userContext.inCognito) {
       await this.cognitoIsp
