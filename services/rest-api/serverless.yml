@@ -80,6 +80,11 @@ functions:
           - dynamodb:PutItem
         Resource:
           - arn:aws:dynamodb:${self:provider.region}:${self:custom.awsAccountId}:table/${cf:${self:custom.infraStack}.DDBTableRestaurants}*
+      - Effect: Allow
+        Action:
+          - cognito-idp:AdminUpdateUserAttributes
+        Resource:
+          - arn:aws:cognito-idp:${self:provider.region}:${self:custom.awsAccountId}:userpool/${cf:${self:custom.infraStack}.UserPoolId}
 
   # =================================================================
   # EventBridge handlers
