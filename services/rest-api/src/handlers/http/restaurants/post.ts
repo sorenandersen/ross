@@ -67,6 +67,12 @@ export const handler = async (event: APIGatewayProxyEventV2) => {
         },
       );
     }
+
+    // Signal error
+    return {
+      statusCode: 500,
+      body: JSON.stringify({ message: `Failed to persist restaurant` }),
+    };
   }
 
   return {
