@@ -4,7 +4,8 @@ import { apiGatewayConfig, AWS_REGION, cognitoConfig } from '@svc/config';
 import { ApiGatewayHandlerInvoker } from '@tests/utils/handler-invokers/api-gateway-handler-invoker';
 import { TestUserManager } from '@tests/utils/test-user-manager';
 import { deleteRestaurant } from '@svc/lib/repos/ross-repo';
-import { Region, Restaurant } from '@svc/lib/types/ross-types';
+import { Region, Restaurant, UserRole } from '@svc/lib/types/ross-types';
+import { InvocationMode } from '@tests/utils/handler-invokers/types';
 
 const postApiInvoker = new ApiGatewayHandlerInvoker({
   baseUrl: apiGatewayConfig.getBaseUrl(),
@@ -91,7 +92,7 @@ describe('`GET /restaurants/{id}`', () => {
     expect(getResponse.statusCode).toEqual(403);
   });
 
-  it('creates a new Restaurant, refreshes users Cognito token and subsequent GET returns the restaurant [e2e]', async () => {
+  it('creates a new Restaurant, refreshes users Cognito token and subsequent GET returns the restaurant', async () => {
     let manager2Context = await userManager.createAndSignInUser();
 
     // **
@@ -118,13 +119,17 @@ describe('`GET /restaurants/{id}`', () => {
       `/restaurants/${testRestaurantId}`,
     );
 
+    // HACK: In integration (LOCAL_HANDLER) mode manually update users restuarant assiciation fields.
+    //  In e2e mode the user context is provided by the cognitoJwtAuthorizer, and thus the fields are already populated from the JWT claims.
+    if (postApiInvoker.invocationMode === InvocationMode.LOCAL_HANDLER) {
+      manager2Context.user.restaurantId = testRestaurantId;
+      manager2Context.user.restaurantRole = UserRole.MANAGER;
+    }
+
     // **
     // ** Step 2: Refresh users Cognito token
     // **
-    manager2Context = await userManager.refreshUserToken(
-      manager2Context.user,
-      manager2Context.refreshToken,
-    );
+    manager2Context = await userManager.refreshUserToken(manager2Context);
 
     // **
     // ** Step 3: GET new restaurant from API

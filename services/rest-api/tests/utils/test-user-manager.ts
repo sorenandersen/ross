@@ -127,14 +127,14 @@ export class TestUserManager {
     }
   }
 
-  async refreshUserToken(user: User, refreshToken: string) {
+  async refreshUserToken(user: AuthenticatedUser) {
     try {
       const refreshResult = await this.cognitoIsp
         .initiateAuth({
           AuthFlow: 'REFRESH_TOKEN_AUTH',
           ClientId: this.config.cognitoUserPoolClientId,
           AuthParameters: {
-            REFRESH_TOKEN: refreshToken,
+            REFRESH_TOKEN: user.refreshToken,
           },
         })
         .promise();
@@ -144,10 +144,9 @@ export class TestUserManager {
       }
 
       return {
-        user,
+        ...user,
         idToken: refreshResult.AuthenticationResult?.IdToken!,
-        refreshToken,
-      } as AuthenticatedUser;
+      };
     } catch (error) {
       console.error('Error refreshing token of Cognito user', error);
       throw error;
