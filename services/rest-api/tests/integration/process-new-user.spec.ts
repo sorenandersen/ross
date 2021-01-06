@@ -1,6 +1,6 @@
 import { AWS_REGION, cognitoConfig } from '@svc/config';
 import { TestUserManager } from '@tests/utils/test-user-manager';
-import { getUser, deleteUser } from '@svc/lib/repos/ross-repo';
+import { getUser } from '@svc/lib/repos/ross-repo';
 
 const userManager = new TestUserManager({
   cognitoUserPoolId: cognitoConfig.userPoolId,
@@ -11,11 +11,6 @@ const userManager = new TestUserManager({
 
 describe('`ebProcessNewUser` Lambda function', () => {
   let createdUserIds: string[] = [];
-
-  const deleteDdbUsers = async () => {
-    await Promise.all(createdUserIds.map(async (id) => await deleteUser(id)));
-    createdUserIds = [];
-  };
 
   it('a confirmed user sign up in Cognito should save the user profile to DynamoDB', async () => {
     // Arrange:
@@ -38,6 +33,6 @@ describe('`ebProcessNewUser` Lambda function', () => {
   });
 
   afterAll(async () => {
-    await Promise.all([userManager.dispose(), deleteDdbUsers()]);
+    await userManager.dispose();
   });
 });

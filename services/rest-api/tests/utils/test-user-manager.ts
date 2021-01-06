@@ -3,6 +3,7 @@ import CognitoIdentityServiceProvider from 'aws-sdk/clients/cognitoidentityservi
 import _ from 'lodash';
 import { v4 as uuidv4 } from 'uuid';
 import { generateTestUser, randomPassword } from './test-data-generator';
+import { deleteUser as deleteDynamoDBUserData } from '@svc/lib/repos/ross-repo';
 
 /* eslint no-console: 0 */
 
@@ -166,11 +167,20 @@ export class TestUserManager {
 
   /**
    * Delete all users in Cognito that were created by this instance.
+   * Also it deletes from DynamoDB as users are persisted here, triggered by Cognito's PostConfirmation event.
    */
   async dispose() {
     await Promise.all(
       this.createdUsers.map(async (u) => this.deleteUserData(u)),
     );
+
+    // Sleep before deleting users from DynamoDB, to account for slight delay of them being persisted (PostConfirmation >> Lambda >> EventBridge >> Lambda)
+    await new Promise((r) => setTimeout(r, 1000));
+
+    await Promise.all(
+      this.createdUsers.map(async (u) => deleteDynamoDBUserData(u.user.id)),
+    );
+
     this.createdUsers.length = 0;
   }
 }
