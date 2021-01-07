@@ -6,7 +6,7 @@ import { putRestaurant } from '@svc/lib/repos/ross-repo';
 import {
   Restaurant,
   RestaurantApprovalStatus,
-  RestaurantAvailability,
+  RestaurantVisibility,
   UserRole,
 } from '@svc/lib/types/ross-types';
 import { APIGatewayProxyEventV2 } from 'aws-lambda';
@@ -31,7 +31,7 @@ export const handler = async (event: APIGatewayProxyEventV2) => {
   // Set defaults
   restaurant.id = uuid();
   restaurant.approvalStatus = RestaurantApprovalStatus.APPROVED; // For a future version, a RossAdmin should approve new restaurants before managers can operate on them.
-  restaurant.availability = RestaurantAvailability.PRIVATE;
+  restaurant.visibility = RestaurantVisibility.PRIVATE;
   restaurant.managerId = user.id;
   restaurant.createdAt = new Date().toISOString();
 

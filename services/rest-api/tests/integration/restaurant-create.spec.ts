@@ -6,7 +6,7 @@ import {
   TestUserManager,
 } from '@tests/utils/test-user-manager';
 import { getRestaurant, deleteRestaurant } from '@svc/lib/repos/ross-repo';
-import { RestaurantAvailability, Region } from '@svc/lib/types/ross-types';
+import { Region, RestaurantVisibility } from '@svc/lib/types/ross-types';
 
 const apiInvoker = new ApiGatewayHandlerInvoker({
   baseUrl: apiGatewayConfig.getBaseUrl(),
@@ -79,9 +79,7 @@ describe('`POST /restaurants`', () => {
     expect(savedRestaurant!.description).toEqual(testRestaurant.description);
     expect(savedRestaurant!.region).toEqual(testRestaurant.region);
     expect(savedRestaurant!.managerId).toEqual(manager1Context.user.id);
-    expect(savedRestaurant!.availability).toEqual(
-      RestaurantAvailability.PRIVATE,
-    );
+    expect(savedRestaurant!.visibility).toEqual(RestaurantVisibility.PRIVATE);
   });
 
   // E2E test: APIGW authorizer configuration

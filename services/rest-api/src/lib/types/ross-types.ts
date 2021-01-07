@@ -27,7 +27,7 @@ export interface User extends UserProfile {
 
 // ==== Restaurants
 
-export enum RestaurantAvailability {
+export enum RestaurantVisibility {
   PRIVATE = 'PRIVATE',
   PUBLIC = 'PUBLIC',
 }
@@ -41,7 +41,7 @@ export interface Restaurant {
   id: string;
   name: string;
   description: string;
-  availability: RestaurantAvailability;
+  visibility: RestaurantVisibility;
   region: Region;
   profilePhotoUrlPath?: string;
   createdAt: string;
