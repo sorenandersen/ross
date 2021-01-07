@@ -1,4 +1,4 @@
-import { handler } from '@svc/handlers/http/restaurants/post';
+import { handler } from '@svc/handlers/http/restaurants/create';
 import { apiGatewayConfig, AWS_REGION, cognitoConfig } from '@svc/config';
 import { ApiGatewayHandlerInvoker } from '@tests/utils/handler-invokers/api-gateway-handler-invoker';
 import {

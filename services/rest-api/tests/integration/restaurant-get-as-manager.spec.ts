@@ -1,4 +1,4 @@
-import { handler as postHandler } from '@svc/handlers/http/restaurants/post';
+import { handler as createHandler } from '@svc/handlers/http/restaurants/create';
 import { handler as getHandler } from '@svc/handlers/http/restaurants/get';
 import { apiGatewayConfig, AWS_REGION, cognitoConfig } from '@svc/config';
 import { ApiGatewayHandlerInvoker } from '@tests/utils/handler-invokers/api-gateway-handler-invoker';
@@ -7,9 +7,9 @@ import { deleteRestaurant } from '@svc/lib/repos/ross-repo';
 import { Region, Restaurant, UserRole } from '@svc/lib/types/ross-types';
 import { InvocationMode } from '@tests/utils/handler-invokers/types';
 
-const postApiInvoker = new ApiGatewayHandlerInvoker({
+const createApiInvoker = new ApiGatewayHandlerInvoker({
   baseUrl: apiGatewayConfig.getBaseUrl(),
-  handler: postHandler,
+  handler: createHandler,
 });
 
 const getApiInvoker = new ApiGatewayHandlerInvoker({
@@ -56,7 +56,7 @@ describe('`GET /restaurants/{id}`', () => {
     // ** Step 1: Create restaurant
     // **
     const testRestaurant = createTestRestaurant('r1');
-    const postResponse = await postApiInvoker.invoke({
+    const postResponse = await createApiInvoker.invoke({
       event: {
         pathTemplate: '/restaurants',
         httpMethod: 'POST',
@@ -99,7 +99,7 @@ describe('`GET /restaurants/{id}`', () => {
     // ** Step 1: Create restaurant
     // **
     const testRestaurant = createTestRestaurant('r2');
-    const postResponse = await postApiInvoker.invoke({
+    const postResponse = await createApiInvoker.invoke({
       event: {
         pathTemplate: '/restaurants',
         httpMethod: 'POST',
@@ -119,17 +119,18 @@ describe('`GET /restaurants/{id}`', () => {
       `/restaurants/${testRestaurantId}`,
     );
 
-    // HACK: In integration (LOCAL_HANDLER) mode manually update users restuarant assiciation fields.
-    //  In e2e mode the user context is provided by the cognitoJwtAuthorizer, and thus the fields are already populated from the JWT claims.
-    if (postApiInvoker.invocationMode === InvocationMode.LOCAL_HANDLER) {
-      manager2Context.user.restaurantId = testRestaurantId;
-      manager2Context.user.restaurantRole = UserRole.MANAGER;
-    }
-
     // **
     // ** Step 2: Refresh users Cognito token
     // **
-    manager2Context = await userManager.refreshUserToken(manager2Context);
+    // Update test user context to reflect new restaurant assignment
+    if (createApiInvoker.invocationMode === InvocationMode.LOCAL_HANDLER) {
+      manager2Context.user.restaurantId = testRestaurantId;
+      manager2Context.user.restaurantRole = UserRole.MANAGER;
+    } else {
+      // In e2e mode the user context is provided from JWT claims (cognitoJwtAuthorizer)
+      // in which case the users token must be refreshed after a restaurant assignment
+      manager2Context = await userManager.refreshUserToken(manager2Context);
+    }
 
     // **
     // ** Step 3: GET new restaurant from API
