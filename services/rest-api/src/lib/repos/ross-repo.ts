@@ -1,6 +1,10 @@
 import log from '@dazn/lambda-powertools-logger';
 import { AWS_REGION, ddbConfig } from '@svc/config';
-import { User, Restaurant } from '@svc/lib/types/ross-types';
+import {
+  User,
+  Restaurant,
+  RestaurantVisibility,
+} from '@svc/lib/types/ross-types';
 import { DocumentClient } from 'aws-sdk/clients/dynamodb';
 
 const ddb = new DocumentClient({ region: AWS_REGION });
@@ -72,6 +76,29 @@ export const getRestaurant = async (id: string) => {
     })
     .promise();
   return response.Item as Restaurant | undefined;
+};
+
+export const updateRestaurantVisibility = async (
+  restaurantId: string,
+  visibility: RestaurantVisibility,
+) => {
+  try {
+    await ddb
+      .update({
+        TableName: ddbConfig.restaurantsTable,
+        Key: {
+          id: restaurantId,
+        },
+        UpdateExpression: 'SET visibility = :visibility',
+        ConditionExpression: 'attribute_exists(id)',
+        ExpressionAttributeValues: {
+          ':visibility': visibility,
+        },
+      })
+      .promise();
+  } catch (error) {
+    log.error('repo updateRestaurantVisibility ERROR', error);
+  }
 };
 
 export const deleteRestaurant = async (id: string) => {

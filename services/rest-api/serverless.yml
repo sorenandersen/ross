@@ -98,6 +98,20 @@ functions:
         Resource:
           - arn:aws:cognito-idp:${self:provider.region}:${self:custom.awsAccountId}:userpool/${cf:${self:custom.infraStack}.UserPoolId}
 
+  httpRestaurantsUpdateVisibility:
+    handler: src/handlers/http/restaurants/update-visibility.handler
+    events:
+      - httpApi:
+          path: /restaurants/{id}/visibility
+          method: PATCH
+          authorizer: cognitoJwtAuthorizer
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:UpdateItem
+        Resource:
+          - arn:aws:dynamodb:${self:provider.region}:${self:custom.awsAccountId}:table/${cf:${self:custom.infraStack}.DDBTableRestaurants}*
+
   # =================================================================
   # EventBridge handlers
   # =================================================================
