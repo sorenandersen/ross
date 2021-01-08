@@ -49,7 +49,7 @@ describe('`GET /restaurants/{id}` as manager', () => {
     createdRestaurantIds = [];
   };
 
-  it('creates a new Restaurant but subsequent GET returns 403 if user does not refresh Cognito token', async () => {
+  it('creates a new Restaurant but subsequent GET returns 404 if user does not refresh Cognito token', async () => {
     const manager1Context = await userManager.createAndSignInUser();
 
     // **
@@ -79,6 +79,9 @@ describe('`GET /restaurants/{id}` as manager', () => {
     // **
     // ** Step 2: GET new restaurant from API
     // **
+    // Note that this request still carries the "unrefreshed" user context
+    // that does not indicate ownership of the restaurant it is now requesting.
+    // Effectively this is requesting the resource similar to a logged-in customer.
     const getResponse = await getApiInvoker.invoke({
       event: {
         pathTemplate: '/restaurants/{id}',
@@ -89,7 +92,7 @@ describe('`GET /restaurants/{id}` as manager', () => {
     });
 
     // Verify GET response
-    expect(getResponse.statusCode).toEqual(403);
+    expect(getResponse.statusCode).toEqual(404);
   });
 
   it('creates a new Restaurant, refreshes users Cognito token and subsequent GET returns the restaurant', async () => {
