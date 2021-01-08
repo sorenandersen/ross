@@ -32,7 +32,7 @@ const userManager = new TestUserManager({
   usernamePrefix: 'updateRestaurantVisibilityTest',
 });
 
-describe.only('`POST /restaurants`', () => {
+describe('`PATCH /restaurants/{id}/visibility`', () => {
   let manager1Context: AuthenticatedUser;
   let createdRestaurants: Restaurant[] = [];
 

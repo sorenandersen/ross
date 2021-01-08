@@ -30,7 +30,7 @@ interface TestRestaurant {
   region: Region;
 }
 
-describe('`GET /restaurants/{id}`', () => {
+describe('`GET /restaurants/{id}` as manager', () => {
   let createdRestaurantIds: string[] = [];
 
   const createTestRestaurant = (prefix: string) => {
