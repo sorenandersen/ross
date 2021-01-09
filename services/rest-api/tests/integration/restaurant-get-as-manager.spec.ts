@@ -46,7 +46,7 @@ describe('`GET /restaurants/{id}` as manager', () => {
     await Promise.all(
       createdRestaurantIds.map(async (id) => await deleteRestaurant(id)),
     );
-    createdRestaurantIds = [];
+    createdRestaurantIds.length = 0;
   };
 
   it('creates a new Restaurant but subsequent GET returns 404 if user does not refresh Cognito token', async () => {

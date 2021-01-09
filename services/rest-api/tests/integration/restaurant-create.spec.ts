@@ -43,7 +43,7 @@ describe('`POST /restaurants`', () => {
     await Promise.all(
       createdRestaurantIds.map(async (id) => await deleteRestaurant(id)),
     );
-    createdRestaurantIds = [];
+    createdRestaurantIds.length = 0;
   };
 
   beforeAll(async () => {
