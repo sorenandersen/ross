@@ -4,6 +4,16 @@ export enum Region {
   BAR = 'BAR',
 }
 
+export interface PagedList<T> {
+  items: T[];
+  lastEvaluatedKey?: string;
+}
+
+export interface PagedQueryOptions {
+  limit?: number;
+  lastEvaluatedKey?: string;
+}
+
 // ==== Users
 
 export enum UserRole {

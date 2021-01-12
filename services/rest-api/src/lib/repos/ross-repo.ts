@@ -1,9 +1,12 @@
 import log from '@dazn/lambda-powertools-logger';
 import { AWS_REGION, ddbConfig } from '@svc/config';
 import {
-  User,
+  PagedList,
+  PagedQueryOptions,
+  Region,
   Restaurant,
   RestaurantVisibility,
+  User,
 } from '@svc/lib/types/ross-types';
 import { DocumentClient } from 'aws-sdk/clients/dynamodb';
 
@@ -76,6 +79,18 @@ export const getRestaurant = async (id: string) => {
     })
     .promise();
   return response.Item as Restaurant | undefined;
+};
+
+export const listRestaurantsByRegion = async (
+  region: Region,
+  queryOptions: PagedQueryOptions = {},
+): Promise<PagedList<Restaurant>> => {
+  // TODO DynamoDB query
+
+  return {
+    lastEvaluatedKey: undefined,
+    items: [],
+  };
 };
 
 export const updateRestaurantVisibility = async (
