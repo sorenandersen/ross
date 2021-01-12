@@ -81,15 +81,35 @@ export const getRestaurant = async (id: string) => {
   return response.Item as Restaurant | undefined;
 };
 
-export const listRestaurantsByRegion = async (
+export const listRestaurantsByVisibilityAndRegion = async (
+  visibility: RestaurantVisibility,
   region: Region,
   queryOptions: PagedQueryOptions = {},
 ): Promise<PagedList<Restaurant>> => {
-  // TODO DynamoDB query
+  const response = await ddb
+    .query({
+      TableName: ddbConfig.restaurantsTable,
+      IndexName: 'RestaurantsByVisibilityAndRegion',
+      KeyConditionExpression: 'visibility = :visibility AND #region = :region',
+      ExpressionAttributeValues: {
+        ':visibility': visibility,
+        ':region': region,
+      },
+      ExpressionAttributeNames: { '#region': 'region' },
+      Limit: queryOptions.limit,
+      ...(queryOptions.lastEvaluatedKey && {
+        ExclusiveStartKey: {
+          id: queryOptions.lastEvaluatedKey,
+          visibility,
+          region,
+        },
+      }),
+    })
+    .promise();
 
   return {
-    lastEvaluatedKey: undefined,
-    items: [],
+    lastEvaluatedKey: response.LastEvaluatedKey?.id,
+    items: response.Items as Restaurant[],
   };
 };
 

@@ -1,6 +1,6 @@
 import log from '@dazn/lambda-powertools-logger';
-import { listRestaurantsByRegion } from '@svc/lib/repos/ross-repo';
-import { Region } from '@svc/lib/types/ross-types';
+import { listRestaurantsByVisibilityAndRegion } from '@svc/lib/repos/ross-repo';
+import { Region, RestaurantVisibility } from '@svc/lib/types/ross-types';
 import { APIGatewayProxyEventV2 } from 'aws-lambda';
 
 /**
@@ -14,8 +14,15 @@ export const handler = async (event: APIGatewayProxyEventV2) => {
     { event },
   );
 
-  // Parse options from querystring
+  // Parse options from querystring -- TODO: Handle region parameter case-insensitively, e.g. allowing both "Bronx" and "bronx"
   const region = event.pathParameters?.region as Region;
+  if (!Region[region]) {
+    // invalid region provided
+    return {
+      statusCode: 400,
+      body: '',
+    };
+  }
   const options = {
     ...(event.queryStringParameters?.limit && {
       limit: parseInt(event.queryStringParameters?.limit, 10),
@@ -23,7 +30,11 @@ export const handler = async (event: APIGatewayProxyEventV2) => {
     lastEvaluatedKey: event.queryStringParameters?.lastEvaluatedKey,
   };
 
-  const response = await listRestaurantsByRegion(region, options);
+  const response = await listRestaurantsByVisibilityAndRegion(
+    RestaurantVisibility.PUBLIC,
+    region,
+    options,
+  );
 
   return {
     statusCode: 200,

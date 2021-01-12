@@ -62,11 +62,14 @@ describe('`GET /restaurants/region/{region}`', () => {
     user1Context = await userManager.createAndSignInUser();
   });
 
+  beforeEach(async () => {
+    await deleteTestRestaurants();
+  });
+
   it('only returns restaurants within the specified region', async () => {
     // **
     // Arrange
     // **
-    await deleteTestRestaurants();
     await createTestRestaurant('r1', RestaurantVisibility.PUBLIC, Region.FOO);
     await createTestRestaurant('r2', RestaurantVisibility.PUBLIC, Region.FOO);
     await createTestRestaurant('r3', RestaurantVisibility.PUBLIC, Region.BAR);
@@ -99,7 +102,6 @@ describe('`GET /restaurants/region/{region}`', () => {
     // **
     // Arrange
     // **
-    await deleteTestRestaurants();
     await createTestRestaurant('r5', RestaurantVisibility.PUBLIC, Region.FOO);
     await createTestRestaurant('r6', RestaurantVisibility.PUBLIC, Region.FOO);
     await createTestRestaurant('r7', RestaurantVisibility.PRIVATE, Region.FOO);
@@ -134,7 +136,7 @@ describe('`GET /restaurants/region/{region}`', () => {
     // **
     // Arrange
     // **
-    await deleteTestRestaurants();
+    // Nothing to arrange as deleteTestRestaurants() runs in "beforeEach"
 
     // **
     // Act
@@ -156,6 +158,9 @@ describe('`GET /restaurants/region/{region}`', () => {
     expect(result.items.length).toEqual(0);
   });
 
+  it.todo(
+    'returns restaurants within the specified region with case-insensitive handling of the provided region name',
+  );
   it.todo(
     'restricts amount of returned items and sets `lastEvaluatedKey` field whenever the `limit` query string parameter is supplied',
   );

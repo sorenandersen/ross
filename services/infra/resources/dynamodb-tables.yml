@@ -23,9 +23,24 @@ Resources:
       AttributeDefinitions:
         - AttributeName: id
           AttributeType: S
+        - AttributeName: region
+          AttributeType: S
+        - AttributeName: visibility
+          AttributeType: S
+        - AttributeName: managerId
+          AttributeType: S
       KeySchema:
         - AttributeName: id
           KeyType: HASH
+      GlobalSecondaryIndexes:
+        - IndexName: RestaurantsByVisibilityAndRegion
+          KeySchema:
+            - AttributeName: visibility
+              KeyType: HASH
+            - AttributeName: region
+              KeyType: RANGE
+          Projection:
+            ProjectionType: ALL
 
 # TODO
 #  SeatingsTable:

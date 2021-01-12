@@ -61,6 +61,9 @@ curl -H "Authorization: Bearer ACCESS_TOKEN" https://dyugw0mhy0.execute-api.eu-w
 # GET /restaurants
 curl -H "Authorization: Bearer ACCESS_TOKEN" https://dyugw0mhy0.execute-api.eu-west-1.amazonaws.com/restaurants/restaurantId -i
 
+# GET /restaurants/region/{region}
+curl -H "Authorization: Bearer ACCESS_TOKEN" https://dyugw0mhy0.execute-api.eu-west-1.amazonaws.com/restaurants/region/FOO -i
+
 # POST /restaurants
 curl -X POST -H "Authorization: Bearer ACCESS_TOKEN" -H "Content-Type: application/json" -d '{"name":"test-curl-1", "description":"test-curl","region":"NOT_SPECIFIED"}' https://dyugw0mhy0.execute-api.eu-west-1.amazonaws.com/restaurants -i
 ```
