@@ -5,7 +5,7 @@ import { Restaurant, RestaurantVisibility } from '@svc/lib/types/ross-types';
 import { APIGatewayProxyEventV2 } from 'aws-lambda';
 
 /**
- * Gets profile of current user.
+ * Gets a specific restaurant
  */
 export const handler = async (event: APIGatewayProxyEventV2) => {
   log.debug(

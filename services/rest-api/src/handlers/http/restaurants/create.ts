@@ -12,7 +12,7 @@ import {
 import { APIGatewayProxyEventV2 } from 'aws-lambda';
 
 /**
- * Gets profile of current user.
+ * Create new restaurant and assign to current user via the "managerId" field
  */
 export const handler = async (event: APIGatewayProxyEventV2) => {
   log.debug(
