@@ -1,4 +1,10 @@
-import { UserProfile } from '@svc/lib/types/ross-types';
+import {
+  Region,
+  Restaurant,
+  RestaurantApprovalStatus,
+  RestaurantVisibility,
+  UserProfile,
+} from '@svc/lib/types/ross-types';
 import faker from 'faker';
 
 const TEST_EMAIL_ADDRESS_DOMAIN =
@@ -20,4 +26,23 @@ export const generateTestUser = (usernamePrefix: string) => {
     name: randomName(),
     createdAt: new Date().toISOString(),
   } as UserProfile;
+};
+
+export const generateTestRestaurant = (
+  prefix: string,
+  testSuiteName: string,
+  visibility: RestaurantVisibility,
+  region: Region = Region.NOT_SPECIFIED,
+  managerId: string = `managerId-${prefix}-${testSuiteName}`,
+) => {
+  return {
+    id: `id-${prefix}-${testSuiteName}`,
+    name: `name-${prefix}-${testSuiteName}`,
+    description: `description-${prefix}-${testSuiteName}`,
+    visibility,
+    region,
+    createdAt: new Date().toISOString(),
+    managerId,
+    approvalStatus: RestaurantApprovalStatus.APPROVED,
+  } as Restaurant;
 };

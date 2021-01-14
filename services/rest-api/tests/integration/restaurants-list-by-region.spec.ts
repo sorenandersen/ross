@@ -6,12 +6,12 @@ import {
   AuthenticatedUser,
   TestUserManager,
 } from '@tests/utils/test-user-manager';
+import { generateTestRestaurant } from '@tests/utils/test-data-generator';
 import { putRestaurant, deleteRestaurant } from '@svc/lib/repos/ross-repo';
 import {
   PagedList,
   Region,
   Restaurant,
-  RestaurantApprovalStatus,
   RestaurantVisibility,
 } from '@svc/lib/types/ross-types';
 
@@ -36,16 +36,12 @@ describe('`GET /restaurants/region/{region}`', () => {
     visibility: RestaurantVisibility,
     region: Region,
   ) => {
-    const restaurant: Restaurant = {
-      id: `id-${prefix}-listRestaurantsByRegionTest`,
-      name: `name-${prefix}-listRestaurantsByRegionTest`,
-      description: `description-${prefix}-listRestaurantsByRegionTest`,
-      visibility: visibility,
-      region: region,
-      createdAt: new Date().toISOString(),
-      managerId: 'someManagerId',
-      approvalStatus: RestaurantApprovalStatus.APPROVED,
-    };
+    const restaurant = generateTestRestaurant(
+      prefix,
+      'listRestaurantsByRegionTest',
+      visibility,
+      region,
+    );
     await putRestaurant(restaurant);
     createdRestaurants.push(restaurant);
     return restaurant;

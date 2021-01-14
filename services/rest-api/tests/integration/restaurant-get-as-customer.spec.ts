@@ -5,13 +5,9 @@ import {
   AuthenticatedUser,
   TestUserManager,
 } from '@tests/utils/test-user-manager';
+import { generateTestRestaurant } from '@tests/utils/test-data-generator';
 import { putRestaurant, deleteRestaurant } from '@svc/lib/repos/ross-repo';
-import {
-  Region,
-  Restaurant,
-  RestaurantApprovalStatus,
-  RestaurantVisibility,
-} from '@svc/lib/types/ross-types';
+import { Restaurant, RestaurantVisibility } from '@svc/lib/types/ross-types';
 
 const apiInvoker = new ApiGatewayHandlerInvoker({
   baseUrl: apiGatewayConfig.getBaseUrl(),
@@ -33,16 +29,11 @@ describe('`GET /restaurants/{id}` as customer', () => {
     prefix: string,
     visibility: RestaurantVisibility,
   ) => {
-    const restaurant: Restaurant = {
-      id: `id-${prefix}-getRestaurantAsCustomerTest`,
-      name: `name-${prefix}-getRestaurantAsCustomerTest`,
-      description: `description-${prefix}-getRestaurantAsCustomerTest`,
-      visibility: visibility,
-      region: Region.NOT_SPECIFIED,
-      createdAt: new Date().toISOString(),
-      managerId: 'someManagerId',
-      approvalStatus: RestaurantApprovalStatus.APPROVED,
-    };
+    const restaurant = generateTestRestaurant(
+      prefix,
+      'getRestaurantAsCustomerTest',
+      visibility,
+    );
     await putRestaurant(restaurant);
     createdRestaurants.push(restaurant);
     return restaurant;

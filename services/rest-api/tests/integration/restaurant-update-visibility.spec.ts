@@ -6,6 +6,7 @@ import {
   AuthenticatedUser,
   TestUserManager,
 } from '@tests/utils/test-user-manager';
+import { generateTestRestaurant } from '@tests/utils/test-data-generator';
 import { assignRestaurantToUser } from '@svc/lib/auth/cognito-util';
 import {
   getRestaurant,
@@ -15,7 +16,6 @@ import {
 import {
   Region,
   Restaurant,
-  RestaurantApprovalStatus,
   RestaurantVisibility,
   UserRole,
 } from '@svc/lib/types/ross-types';
@@ -44,16 +44,13 @@ describe('`PATCH /restaurants/{id}/visibility`', () => {
     prefix: string,
     managerId: string,
   ) => {
-    const restaurant: Restaurant = {
-      id: `id-${prefix}-updateRestaurantVisibilityTest`,
-      name: `name-${prefix}-updateRestaurantVisibilityTest`,
-      description: `description-${prefix}-updateRestaurantVisibilityTest`,
-      visibility: RestaurantVisibility.PRIVATE,
-      region: Region.NOT_SPECIFIED,
-      createdAt: new Date().toISOString(),
+    const restaurant = generateTestRestaurant(
+      prefix,
+      'updateRestaurantVisibilityTest',
+      RestaurantVisibility.PRIVATE,
+      Region.NOT_SPECIFIED,
       managerId,
-      approvalStatus: RestaurantApprovalStatus.APPROVED,
-    };
+    );
     await putRestaurant(restaurant);
     createdRestaurants.push(restaurant);
     return restaurant;
