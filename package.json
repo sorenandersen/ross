@@ -27,6 +27,7 @@
   "devDependencies": {
     "@types/aws-lambda": "^8.10.66",
     "@types/faker": "^5.1.5",
+    "@types/http-errors": "^1.8.0",
     "@types/jest": "^26.0.19",
     "@types/node": "^14.14.12",
     "@types/serverless": "^1.78.15",
@@ -50,6 +51,7 @@
     "@aws/dynamodb-auto-marshaller": "^0.7.1",
     "@dazn/lambda-powertools-logger": "^1.28.0",
     "aws-sdk": "^2.813.0",
+    "http-errors": "^1.8.0",
     "uuid": "^8.3.2"
   }
 }
