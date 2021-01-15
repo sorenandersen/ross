@@ -9,8 +9,8 @@ const cognitoIsp = new CognitoIdentityServiceProvider({
 
 export const assignRestaurantToUser = async (
   userId: string,
-  restaurantId?: string,
-  restaurantRole?: UserRole,
+  restaurantId?: string, // TODO null's when clearing field? - restaurantId: sting | null
+  restaurantRole?: UserRole, // TODO null's when clearing field? - restaurantRole: UserRole | null
 ) => {
   log.debug('assignRestaurantToUser', { userId, restaurantId, restaurantRole });
 

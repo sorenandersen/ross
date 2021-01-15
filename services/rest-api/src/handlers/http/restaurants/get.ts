@@ -1,5 +1,4 @@
 import log from '@dazn/lambda-powertools-logger';
-import { APIGatewayProxyEventV2 } from 'aws-lambda';
 import { wrap } from '@svc/lib/middleware/apigw-error-handler';
 import createError from 'http-errors';
 import { getUserFromClaims } from '@svc/lib/auth/claims-parser';
@@ -9,7 +8,7 @@ import { Restaurant, RestaurantVisibility } from '@svc/lib/types/ross-types';
 /**
  * Gets a specific restaurant
  */
-export const handler = wrap(async (event: APIGatewayProxyEventV2) => {
+export const handler = wrap(async (event) => {
   log.debug(
     `${event.requestContext?.http?.method?.toUpperCase()} /restaurants/${
       event.pathParameters?.id

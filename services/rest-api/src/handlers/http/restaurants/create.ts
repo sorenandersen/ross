@@ -1,5 +1,4 @@
 import log from '@dazn/lambda-powertools-logger';
-import { APIGatewayProxyEventV2 } from 'aws-lambda';
 import { wrap } from '@svc/lib/middleware/apigw-error-handler';
 import uuid from '@svc/lib/uuid';
 import { getUserFromClaims } from '@svc/lib/auth/claims-parser';
@@ -15,14 +14,14 @@ import {
 /**
  * Create new restaurant and assign to current user via the "managerId" field
  */
-export const handler = wrap(async (event: APIGatewayProxyEventV2) => {
+export const handler = wrap(async (event) => {
   log.debug(
     `${event.requestContext?.http?.method?.toUpperCase()} /restaurants called`,
     { event },
   );
   const user = getUserFromClaims(event.requestContext.authorizer?.jwt.claims!);
 
-  const restaurant = JSON.parse(event.body!) as Restaurant;
+  const restaurant = JSON.parse(event.body || '{}') as Restaurant;
 
   // TODO validate restaurant (and user? - or do we allow the user to create multiple restaurants; which would effectively leave all but the latest one orphaned ...)
   // *
@@ -54,7 +53,7 @@ export const handler = wrap(async (event: APIGatewayProxyEventV2) => {
 
     // Attempt rollback: Remove restaurant assignment
     try {
-      await assignRestaurantToUser(user.id);
+      await assignRestaurantToUser(user.id, undefined, undefined);
 
       log.info('Rollback success; user no longer associated with restaurant', {
         userId: user.id,
