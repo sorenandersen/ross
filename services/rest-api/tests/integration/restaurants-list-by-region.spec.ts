@@ -94,14 +94,44 @@ describe('`GET /restaurants/region/{region}`', () => {
     );
   });
 
+  it('returns restaurants within the specified region, with case-insensitive handling of the provided region name', async () => {
+    // **
+    // Arrange
+    // **
+    await createTestRestaurant('r8', RestaurantVisibility.PUBLIC, Region.FOO);
+
+    // **
+    // Act, now with a mixed case region name
+    // **
+    const requestedRegion = Region.FOO;
+    const requestedRegionQueryStringParam = 'Foo';
+    const response = await apiInvoker.invoke({
+      event: {
+        pathTemplate: '/restaurants/region/{region}',
+        httpMethod: 'GET',
+        pathParameters: { region: requestedRegionQueryStringParam },
+      },
+      userContext: user1Context,
+    });
+
+    // **
+    // Assert
+    // **
+    expect(response.statusCode).toEqual(200);
+    const result = response.body as PagedList<Restaurant>;
+    expect(result.items.length).toEqual(
+      createdRestaurants.filter((r) => r.region === requestedRegion).length,
+    );
+  });
+
   it('only returns restaurants with visibility=PUBLIC', async () => {
     // **
     // Arrange
     // **
-    await createTestRestaurant('r5', RestaurantVisibility.PUBLIC, Region.FOO);
-    await createTestRestaurant('r6', RestaurantVisibility.PUBLIC, Region.FOO);
-    await createTestRestaurant('r7', RestaurantVisibility.PRIVATE, Region.FOO);
-    await createTestRestaurant('r8', RestaurantVisibility.PRIVATE, Region.FOO);
+    await createTestRestaurant('r11', RestaurantVisibility.PUBLIC, Region.FOO);
+    await createTestRestaurant('r12', RestaurantVisibility.PUBLIC, Region.FOO);
+    await createTestRestaurant('r13', RestaurantVisibility.PRIVATE, Region.FOO);
+    await createTestRestaurant('r14', RestaurantVisibility.PRIVATE, Region.FOO);
 
     // **
     // Act
@@ -154,9 +184,6 @@ describe('`GET /restaurants/region/{region}`', () => {
     expect(result.items.length).toEqual(0);
   });
 
-  it.todo(
-    'returns restaurants within the specified region with case-insensitive handling of the provided region name',
-  );
   it.todo(
     'restricts amount of returned items and sets `lastEvaluatedKey` field whenever the `limit` query string parameter is supplied',
   );

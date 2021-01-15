@@ -1,5 +1,4 @@
 import log from '@dazn/lambda-powertools-logger';
-import { APIGatewayProxyEventV2 } from 'aws-lambda';
 import { wrap } from '@svc/lib/middleware/apigw-error-handler';
 import createError from 'http-errors';
 import { getUserFromClaims } from '@svc/lib/auth/claims-parser';
@@ -9,7 +8,7 @@ import { Restaurant, RestaurantVisibility } from '@svc/lib/types/ross-types';
 /**
  * Updates visibility of existing restaurant
  */
-export const handler = wrap(async (event: APIGatewayProxyEventV2) => {
+export const handler = wrap(async (event) => {
   log.debug(
     `${event.requestContext?.http?.method?.toUpperCase()} /restaurants/${
       event.pathParameters?.id
@@ -27,13 +26,13 @@ export const handler = wrap(async (event: APIGatewayProxyEventV2) => {
   }
 
   // Parse and validate body - expect JSON payload a'la: '{"visibility": "PUBLIC"}'
-  const restaurant = JSON.parse(event.body!) as Restaurant;
-  if (!restaurant.visibility || !RestaurantVisibility[restaurant.visibility]) {
+  const restaurant = JSON.parse(event.body || '{}') as Restaurant;
+  const visibility = restaurant.visibility?.toUpperCase() as RestaurantVisibility;
+  if (!RestaurantVisibility[visibility]) {
     throw new createError.BadRequest('Invalid visiblity provided');
   }
 
   // Provided visibility is valid. Perform update
-  const visibility = RestaurantVisibility[restaurant.visibility];
   await updateRestaurantVisibility(restaurantId, visibility);
 
   return {
