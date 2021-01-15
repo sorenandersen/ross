@@ -1,13 +1,15 @@
 import log from '@dazn/lambda-powertools-logger';
+import { APIGatewayProxyEventV2 } from 'aws-lambda';
+import { wrap } from '@svc/lib/middleware/apigw-error-handler';
+import createError from 'http-errors';
 import { getUserFromClaims } from '@svc/lib/auth/claims-parser';
 import { updateRestaurantVisibility } from '@svc/lib/repos/ross-repo';
 import { Restaurant, RestaurantVisibility } from '@svc/lib/types/ross-types';
-import { APIGatewayProxyEventV2 } from 'aws-lambda';
 
 /**
  * Updates visibility of existing restaurant
  */
-export const handler = async (event: APIGatewayProxyEventV2) => {
+export const handler = wrap(async (event: APIGatewayProxyEventV2) => {
   log.debug(
     `${event.requestContext?.http?.method?.toUpperCase()} /restaurants/${
       event.pathParameters?.id
@@ -19,20 +21,15 @@ export const handler = async (event: APIGatewayProxyEventV2) => {
 
   // Validate that user is allowed to perform operation
   if (user.restaurantId !== restaurantId) {
-    return {
-      statusCode: 403,
-      body: '',
-    };
+    throw new createError.Forbidden(
+      'User not allowed to operate on given restaurant',
+    );
   }
 
   // Parse and validate body - expect JSON payload a'la: '{"visibility": "PUBLIC"}'
   const restaurant = JSON.parse(event.body!) as Restaurant;
   if (!restaurant.visibility || !RestaurantVisibility[restaurant.visibility]) {
-    // invalid visiblity provided
-    return {
-      statusCode: 400,
-      body: '',
-    };
+    throw new createError.BadRequest('Invalid visiblity provided');
   }
 
   // Provided visibility is valid. Perform update
@@ -43,4 +40,4 @@ export const handler = async (event: APIGatewayProxyEventV2) => {
     statusCode: 204,
     body: '',
   };
-};
+});

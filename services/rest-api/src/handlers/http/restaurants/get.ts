@@ -1,10 +1,10 @@
 import log from '@dazn/lambda-powertools-logger';
 import { APIGatewayProxyEventV2 } from 'aws-lambda';
+import { wrap } from '@svc/lib/middleware/apigw-error-handler';
 import createError from 'http-errors';
 import { getUserFromClaims } from '@svc/lib/auth/claims-parser';
 import { getRestaurant } from '@svc/lib/repos/ross-repo';
 import { Restaurant, RestaurantVisibility } from '@svc/lib/types/ross-types';
-import { wrap } from '@svc/lib/middleware/apigw-error-handler';
 
 /**
  * Gets a specific restaurant

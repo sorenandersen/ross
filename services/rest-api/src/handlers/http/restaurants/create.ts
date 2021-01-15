@@ -1,4 +1,6 @@
 import log from '@dazn/lambda-powertools-logger';
+import { APIGatewayProxyEventV2 } from 'aws-lambda';
+import { wrap } from '@svc/lib/middleware/apigw-error-handler';
 import uuid from '@svc/lib/uuid';
 import { getUserFromClaims } from '@svc/lib/auth/claims-parser';
 import { assignRestaurantToUser } from '@svc/lib/auth/cognito-util';
@@ -9,12 +11,11 @@ import {
   RestaurantVisibility,
   UserRole,
 } from '@svc/lib/types/ross-types';
-import { APIGatewayProxyEventV2 } from 'aws-lambda';
 
 /**
  * Create new restaurant and assign to current user via the "managerId" field
  */
-export const handler = async (event: APIGatewayProxyEventV2) => {
+export const handler = wrap(async (event: APIGatewayProxyEventV2) => {
   log.debug(
     `${event.requestContext?.http?.method?.toUpperCase()} /restaurants called`,
     { event },
@@ -69,10 +70,7 @@ export const handler = async (event: APIGatewayProxyEventV2) => {
     }
 
     // Signal error
-    return {
-      statusCode: 500,
-      body: JSON.stringify({ message: `Failed to persist restaurant` }),
-    };
+    throw new Error('Failed to create restaurant');
   }
 
   return {
@@ -80,4 +78,4 @@ export const handler = async (event: APIGatewayProxyEventV2) => {
     headers: { location: `/restaurants/${restaurant.id}` },
     body: JSON.stringify({ id: restaurant.id }),
   };
-};
+});
