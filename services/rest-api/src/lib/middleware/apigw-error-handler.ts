@@ -2,7 +2,6 @@ import log from '@dazn/lambda-powertools-logger';
 import {
   APIGatewayProxyEventV2,
   APIGatewayProxyResult,
-  //APIGatewayProxyResultV2,
   Context,
 } from 'aws-lambda';
 
@@ -25,7 +24,7 @@ export const wrap = (handler: PromiseHandler): PromiseHandler => async (
       // **
       // HTTP status code error
       // **
-      log.info('statusCodeError', {
+      log.warn('statusCodeError', {
         statusCode: error.statusCode,
         error,
         event,
