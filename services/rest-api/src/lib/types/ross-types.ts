@@ -62,6 +62,28 @@ export interface Restaurant {
   approvalStatus: RestaurantApprovalStatus;
 }
 
+// ==== Seatings
+
+export enum SeatingStatus {
+  PENDING = 'PENDING',
+  ACCEPTED = 'ACCEPTED',
+  DECLINED = 'DECLINED',
+  SEATED = 'SEATED',
+  CLOSED = 'CLOSED',
+  CANCELLED = 'CANCELLED',
+}
+
+export interface Seating {
+  id: string;
+  restaurantId: string;
+  userId: string;
+  status: SeatingStatus;
+  seatingTime: string;
+  numSeats: number;
+  notes: string;
+  createdAt: string;
+}
+
 // ==== EventBridge event message schemas
 
 export enum EventDetailType {
