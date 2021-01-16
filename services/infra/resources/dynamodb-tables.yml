@@ -1,4 +1,5 @@
 Resources:
+  # TODO: Enable "DeletionPolicy" and "UpdateReplacePolicy" on DynamoDB tables
   UsersTable:
     Type: AWS::DynamoDB::Table
     #    DeletionPolicy: ${self:custom.deletionPolicy.${self:provider.stage}}
@@ -13,7 +14,7 @@ Resources:
         - AttributeName: id
           KeyType: HASH
 
-  RestaurantsTable: # TODO enhance design for access patterns
+  RestaurantsTable:
     Type: AWS::DynamoDB::Table
     #    DeletionPolicy: ${self:custom.deletionPolicy.${self:provider.stage}}
     #    UpdateReplacePolicy: Retain
@@ -42,27 +43,44 @@ Resources:
           Projection:
             ProjectionType: ALL
 
-# TODO
-#  SeatingsTable:
-#    Properties:
-#      StreamSpecification:
-#        StreamViewType: NEW_IMAGE
+  SeatingsTable:
+    Type: AWS::DynamoDB::Table
+    #    DeletionPolicy: ${self:custom.deletionPolicy.${self:provider.stage}}
+    #    UpdateReplacePolicy: Retain
+    Properties:
+      TableName: ${self:custom.dynamoDbTablePrefix}-seatings
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: id
+          AttributeType: S
+        - AttributeName: restaurantId
+          AttributeType: S
+        # - AttributeName: userId
+        #   AttributeType: S
+        # - AttributeName: status
+        #   AttributeType: S
+      KeySchema:
+        - AttributeName: restaurantId
+          KeyType: HASH
+        - AttributeName: id
+          KeyType: RANGE
+      StreamSpecification:
+        StreamViewType: NEW_IMAGE
 
-# TODO
-# Dead letter queue for failed DDB stream events
-#  DDBSeatingsStreamDLQ:
-#    Type: AWS::SQS::Queue
+  # Dead letter queue for failed DDB stream events
+  DDBSeatingsStreamDLQ:
+    Type: AWS::SQS::Queue
 
 Outputs:
   DDBTableUsers:
     Value: !Ref UsersTable
   DDBTableRestaurants:
     Value: !Ref RestaurantsTable
-#   DDBTableSeatings:
-#     Value: !Ref SeatingsTable
-#   DDBTableSeatingsStreamArn:
-#     Value: !GetAtt SeatingsTable.StreamArn
-#   DDBSeatingsStreamDLQ:
-#     Value: !Ref DDBSeatingsStreamDLQ
-#   DDBSeatingsStreamDLQArn:
-#     Value: !GetAtt DDBSeatingsStreamDLQ.Arn
+  DDBTableSeatings:
+    Value: !Ref SeatingsTable
+  DDBTableSeatingsStreamArn:
+    Value: !GetAtt SeatingsTable.StreamArn
+  DDBSeatingsStreamDLQ:
+    Value: !Ref DDBSeatingsStreamDLQ
+  DDBSeatingsStreamDLQArn:
+    Value: !GetAtt DDBSeatingsStreamDLQ.Arn
