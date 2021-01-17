@@ -6,6 +6,7 @@ import {
   Region,
   Restaurant,
   RestaurantVisibility,
+  Seating,
   User,
 } from '@svc/lib/types/ross-types';
 import { DocumentClient } from 'aws-sdk/clients/dynamodb';
@@ -142,6 +143,51 @@ export const deleteRestaurant = async (id: string) => {
       TableName: ddbConfig.restaurantsTable,
       Key: {
         id,
+      },
+    })
+    .promise();
+};
+
+// ==== Seatings
+
+export const putSeating = async (seating: Seating) => {
+  log.debug('repo putSeating: ', { seating });
+  try {
+    await ddb
+      .put({
+        TableName: ddbConfig.seatingsTable,
+        Item: seating,
+        ConditionExpression: 'attribute_not_exists(id)',
+      })
+      .promise();
+  } catch (error) {
+    log.error('repo putSeating ERROR', error);
+  }
+};
+
+export const getSeating = async (seatingId: string, restaurantId: string) => {
+  const response = await ddb
+    .get({
+      TableName: ddbConfig.seatingsTable,
+      Key: {
+        id: seatingId,
+        restaurantId,
+      },
+    })
+    .promise();
+  return response.Item as Seating | undefined;
+};
+
+export const deleteSeating = async (
+  seatingId: string,
+  restaurantId: string,
+) => {
+  await ddb
+    .delete({
+      TableName: ddbConfig.seatingsTable,
+      Key: {
+        id: seatingId,
+        restaurantId,
       },
     })
     .promise();
