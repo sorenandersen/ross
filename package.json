@@ -50,6 +50,7 @@
   "dependencies": {
     "@aws/dynamodb-auto-marshaller": "^0.7.1",
     "@dazn/lambda-powertools-logger": "^1.28.0",
+    "ajv": "^6.12.6",
     "aws-sdk": "^2.813.0",
     "http-errors": "^1.8.0",
     "uuid": "^8.3.2"
