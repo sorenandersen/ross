@@ -19,7 +19,7 @@ describe('`ebProcessNewUser` Lambda function', () => {
     const userContext = await userManager.createUser();
 
     // Sleep, to account for slight EventBridge delay
-    await new Promise((r) => setTimeout(r, 1000));
+    await new Promise((r) => setTimeout(r, 1500));
 
     // Assert
     const ddbUser = await getUser(userContext.id);
