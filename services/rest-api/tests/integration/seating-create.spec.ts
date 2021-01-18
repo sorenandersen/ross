@@ -20,6 +20,8 @@ const userManager = new TestUserManager({
   usernamePrefix: 'createSeatingTest',
 });
 
+const apiPathTemplate = '/restaurants/{id}/seatings';
+
 interface TestSeating {
   seatingTime: string;
   numSeats: number;
@@ -54,11 +56,10 @@ describe('`POST /restaurants`', () => {
   });
 
   it('creates a new Seating in DDB whenever required fields are provided', async () => {
-    const prefix = 's1';
-    const testSeating = createTestSeating(prefix);
+    const testSeating = createTestSeating('s1');
     const response = await apiInvoker.invoke({
       event: {
-        pathTemplate: '/restaurants/{id}/seatings',
+        pathTemplate: apiPathTemplate,
         httpMethod: 'POST',
         pathParameters: { id: testRestaurantId },
         body: { ...testSeating },
@@ -66,12 +67,13 @@ describe('`POST /restaurants`', () => {
       userContext: user1Context,
     });
 
+    expect(response.statusCode).toEqual(201);
+
     // Grab ID of created restaurant and store it so that we can later delete created test restarants
     const testSeatingId = response.body.id;
     createdSeatingIds.push(testSeatingId);
 
-    // Verify response
-    expect(response.statusCode).toEqual(201);
+    // Verify response headers
     expect(response.headers.location).toEqual(
       `/restaurants/${testRestaurantId}/seatings/${testSeatingId}`,
     );
@@ -87,7 +89,64 @@ describe('`POST /restaurants`', () => {
     expect(savedSeating!.notes).toEqual(testSeating.notes);
   });
 
-  it.todo('returns 400 Bad Request when invalid seating payload is provided');
+  it('returns 400 Bad Request when invalid seating payload is provided (1)', async () => {
+    const testSeating = createTestSeating('s2');
+    testSeating.seatingTime = 'invalid-date-time-value';
+
+    const response = await apiInvoker.invoke({
+      event: {
+        pathTemplate: apiPathTemplate,
+        httpMethod: 'POST',
+        pathParameters: { id: testRestaurantId },
+        body: { ...testSeating },
+      },
+      userContext: user1Context,
+    });
+
+    expect(response.statusCode).toEqual(400);
+    expect(response.body.message).toContain('seatingTime');
+  });
+
+  it('returns 400 Bad Request when invalid seating payload is provided (2)', async () => {
+    const testSeating = createTestSeating('s3');
+    const testSeating2 = Object.assign(
+      {},
+      { ...testSeating, numSeats: 'invalid-numSeats-data-type' },
+    );
+
+    const response = await apiInvoker.invoke({
+      event: {
+        pathTemplate: apiPathTemplate,
+        httpMethod: 'POST',
+        pathParameters: { id: testRestaurantId },
+        body: { ...testSeating2 },
+      },
+      userContext: user1Context,
+    });
+
+    expect(response.statusCode).toEqual(400);
+    expect(response.body.message).toContain('numSeats');
+  });
+
+  it('returns 400 Bad Request when invalid seating payload is provided (3)', async () => {
+    const testSeating = createTestSeating('s4');
+    testSeating.seatingTime = '2021-12-31T20:00:0';
+    testSeating.numSeats = 0;
+
+    const response = await apiInvoker.invoke({
+      event: {
+        pathTemplate: apiPathTemplate,
+        httpMethod: 'POST',
+        pathParameters: { id: testRestaurantId },
+        body: { ...testSeating },
+      },
+      userContext: user1Context,
+    });
+
+    expect(response.statusCode).toEqual(400);
+    expect(response.body.message).toContain('seatingTime');
+    expect(response.body.message).toContain('numSeats');
+  });
 
   // E2E test: APIGW authorizer configuration
   it('returns 401 Unauthorized error if no auth token provided [e2e]', async () => {

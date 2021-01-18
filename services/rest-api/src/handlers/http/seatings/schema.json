@@ -10,7 +10,7 @@
     },
     "numSeats": {
       "type": "integer",
-      "minimum": 0,
+      "minimum": 1,
       "description": "Number of seats"
     },
     "notes": {
