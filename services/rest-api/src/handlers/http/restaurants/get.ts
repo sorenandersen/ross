@@ -1,6 +1,7 @@
 import log from '@dazn/lambda-powertools-logger';
 import { wrap } from '@svc/lib/middleware/apigw-error-handler';
 import createError from 'http-errors';
+import { errorMessages } from '@svc/lib/validation/messages';
 import { getUserFromClaims } from '@svc/lib/auth/claims-parser';
 import { getRestaurant } from '@svc/lib/repos/ross-repo';
 import { Restaurant, RestaurantVisibility } from '@svc/lib/types/ross-types';
@@ -33,7 +34,7 @@ export const handler = wrap(async (event) => {
     // **
     // Validate that equested restaurant is associated with requesting user
     if (user.restaurantId !== restaurantId) {
-      throw new createError.Forbidden();
+      throw new createError.Forbidden(errorMessages.forbidden);
     }
   }
 

@@ -2,7 +2,7 @@ import log from '@dazn/lambda-powertools-logger';
 import { wrap } from '@svc/lib/middleware/apigw-error-handler';
 import createError from 'http-errors';
 import seatings_schema from './schema.json';
-import { validate } from '@svc/lib/schema-validator';
+import { validate } from '@svc/lib/validation/schema-validator';
 import uuid from '@svc/lib/uuid';
 import { getUserFromClaims } from '@svc/lib/auth/claims-parser';
 import { putSeating } from '@svc/lib/repos/ross-repo';

@@ -35,7 +35,7 @@ export const wrap = (handler: PromiseHandler): PromiseHandler => async (
       return {
         statusCode: error.statusCode,
         body: JSON.stringify({
-          error: error.message,
+          message: error.message,
         }),
       };
     }
@@ -56,7 +56,7 @@ export const wrap = (handler: PromiseHandler): PromiseHandler => async (
     return {
       statusCode: 500,
       body: JSON.stringify({
-        error: 'Internal Server Error',
+        message: 'Internal Server Error',
       }),
     };
   }

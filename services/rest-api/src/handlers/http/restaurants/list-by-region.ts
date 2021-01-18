@@ -18,7 +18,9 @@ export const handler = wrap(async (event) => {
   // Parse options from querystring
   const region = event.pathParameters?.region?.toUpperCase() as Region;
   if (!Region[region]) {
-    throw new createError.BadRequest('Invalid region provided');
+    throw new createError.BadRequest(
+      'No region provided. Pass region in the request body.',
+    );
   }
 
   const options = {
