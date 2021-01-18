@@ -28,6 +28,8 @@ export const handler = wrap(async (event) => {
     throw new createError.BadRequest(validateResult.errorsText);
   }
 
+  // TODO validate that seatingTime is forward in time
+
   // Set defaults
   seating.id = uuid();
   seating.restaurantId = restaurantId;
