@@ -160,6 +160,33 @@ functions:
         Resource:
           - arn:aws:dynamodb:${self:provider.region}:${self:custom.awsAccountId}:table/${cf:${self:custom.infraStack}.DDBTableUsers}*
 
+  # =================================================================
+  # DynamoDB stream handlers
+  # =================================================================
+  ddbProcessNewSeating:
+    handler: src/handlers/dynamodb/process-new-seating.handler
+    events:
+      - stream:
+          type: dynamodb
+          arn: ${cf:${self:custom.infraStack}.DDBTableSeatingsStreamArn}
+          bisectBatchOnFunctionError: true # split batch in 2 if function returns error
+          maximumRetryAttempts: 3
+          batchSize: 10 # Upper limit of EventBridge.PutEvents.Entries
+          destinations:
+            # Capture failed messages to DLQ
+            onFailure: ${cf:${self:custom.infraStack}.DDBSeatingsStreamDLQArn}
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - events:PutEvents
+        Resource:
+          - ${cf:${self:custom.infraStack}.ServiceBusArn}
+      - Effect: Allow
+        Action:
+          - sqs:SendMessage
+        Resource:
+          - ${cf:${self:custom.infraStack}.DDBSeatingsStreamDLQArn}
+
 plugins:
   - serverless-webpack
   - serverless-export-env
