@@ -2,7 +2,7 @@ Resources:
   ServiceBus:
     Type: AWS::Events::EventBus
     Properties:
-      Name: ${self:custom.appName}-service-bus
+      Name: ${self:custom.appName}-service-bus-${self:provider.stage}
 
 Outputs:
   ServiceBus:

@@ -56,17 +56,17 @@ npm run test-all
 
 ```
 # GET /me
-curl -H "Authorization: Bearer ACCESS_TOKEN" https://dyugw0mhy0.execute-api.eu-west-1.amazonaws.com/me -i
+curl -H "Authorization: Bearer ACCESS_TOKEN" https://tqq0a4mrwa.execute-api.eu-west-1.amazonaws.com/me -i
 
 # GET /restaurants
-curl -H "Authorization: Bearer ACCESS_TOKEN" https://dyugw0mhy0.execute-api.eu-west-1.amazonaws.com/restaurants/restaurantId -i
+curl -H "Authorization: Bearer ACCESS_TOKEN" https://tqq0a4mrwa.execute-api.eu-west-1.amazonaws.com/restaurants/restaurantId -i
 
 # GET /restaurants/region/{region}
-curl -H "Authorization: Bearer ACCESS_TOKEN" https://dyugw0mhy0.execute-api.eu-west-1.amazonaws.com/restaurants/region/FOO -i
+curl -H "Authorization: Bearer ACCESS_TOKEN" https://tqq0a4mrwa.execute-api.eu-west-1.amazonaws.com/restaurants/region/FOO -i
 
 # POST /restaurants
-curl -X POST -H "Authorization: Bearer ACCESS_TOKEN" -H "Content-Type: application/json" -d '{"name":"test-curl-1", "description":"test-curl","region":"NOT_SPECIFIED"}' https://dyugw0mhy0.execute-api.eu-west-1.amazonaws.com/restaurants -i
+curl -X POST -H "Authorization: Bearer ACCESS_TOKEN" -H "Content-Type: application/json" -d '{"name":"test-curl-1", "description":"test-curl","region":"NOT_SPECIFIED"}' https://tqq0a4mrwa.execute-api.eu-west-1.amazonaws.com/restaurants -i
 
 # PATCH /restaurants/{id}/visibility
-curl -X PATCH -H "Authorization: Bearer ACCESS_TOKEN" -H "Content-Type: application/json" -d '{"visibility": "PUBLIC"}' https://dyugw0mhy0.execute-api.eu-west-1.amazonaws.com/restaurants/restaurantId/visibility -i
+curl -X PATCH -H "Authorization: Bearer ACCESS_TOKEN" -H "Content-Type: application/json" -d '{"visibility": "PUBLIC"}' https://tqq0a4mrwa.execute-api.eu-west-1.amazonaws.com/restaurants/restaurantId/visibility -i
 ```
