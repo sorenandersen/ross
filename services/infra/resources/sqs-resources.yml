@@ -1,0 +1,26 @@
+Resources:
+  # Standard processing queues
+  OutboundNotificationsQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      VisibilityTimeout: 20 # seconds that Lambda has to process message before its returned to queue
+      RedrivePolicy:
+        deadLetterTargetArn: !GetAtt OutboundNotificationsDLQ.Arn
+        maxReceiveCount: 3 # Amount of attempts before moving to DLQ
+
+  # Dead Letter Queues
+  OutboundNotificationsDLQ:
+    Type: AWS::SQS::Queue
+    Properties:
+      VisibilityTimeout: 5 # keep this low for faster e2e testing in non-prod (should match OutboundNotificationsQueue value for prod account though!)
+      MessageRetentionPeriod: 300 # 5 mins - !!this should be set to much higher in prod
+
+Outputs:
+  OutboundNotificationsQueueUrl:
+    Value: !Ref OutboundNotificationsQueue
+  OutboundNotificationsQueueArn:
+    Value: !GetAtt OutboundNotificationsQueue.Arn
+  OutboundNotificationsDLQUrl:
+    Value: !Ref OutboundNotificationsDLQ
+  OutboundNotificationsDLQArn:
+    Value: !GetAtt OutboundNotificationsDLQ.Arn
