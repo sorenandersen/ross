@@ -8,16 +8,17 @@ Properties:
 
 - id
 - email
-- role [Admin, StaffUser, Customer]
-- restaurantId (for Admins and StaffUsers only)
+- role [Manager, StaffUser, Customer]
 - region (for Customers only)
+- restaurantId (for Managers and StaffUsers only)
+- restaurantRole (for Managers and StaffUsers only)
 
 ## Restaurant
 
 Properties:
 
 - id
-- adminUserId
+- managerId
 - name
 - description
 - region
@@ -30,16 +31,17 @@ Properties:
 
 - id
 - restaurantId
-- customerUserId
+- userId
+- status
 - seatingTime
 - numSeats
 - notes
-- status
 - tableNumber
 - orderItems
 - "hailing" true/false
 
-Seating statuses
+Seating statuses:
+
 - PENDING
 - ACCEPTED
 - CANCELLED

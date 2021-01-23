@@ -6,19 +6,19 @@ A complete collection of [user stories](./user-stories.md) also exists.
 
 ## Create user
 
-**NOTE: Work in progress**
-
 New users sign up directly via Cognito API calls (or the hosted web UI). The [Post Confirmation Lambda Trigger](https://docs.aws.amazon.com/cognito/latest/developerguide/user-pool-lambda-post-confirmation.html), ensures a business event is raised to EventBridge, which kicks of further processing steps: Persisting the user to DynamoDB and sending a welcome email.
 
 ![](./img/use-case-create-user.png)
 
 First draft; kept here as a reference to discuss how to go about setting the users region. Maybe by a _"Click here to finish setting up your user profile"_ link in the welcome email?
 
+**NOTE: Work in progress**
+
 ![](./img/use-case-create-user-wip.png)
 
 ## Create seating
 
-Logged-in customers can create new seatings with a paticular restaurant. When persisted, the user will receive an email acknowledgement and all StaffUsers at the restaurant will be notififed via email.
+Logged-in customers can create new seatings with a paticular restaurant. When persisted, the Customer will receive an email acknowledgement and all StaffUsers at the restaurant will be notififed via email.
 
 ![](./img/use-case-create-seating.png)
 

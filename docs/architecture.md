@@ -44,22 +44,24 @@ The application supports three user roles:
 
 - Customers
 - StaffUsers
-- Admins, i.e. restaurant owner
+- Managers, i.e. restaurant owner
 
 Three Cognito groups are used to manage the permissions of these roles.
 
 Two Cognito app clients ensures access to Cognito API operations for client applications (frontend's) consuming the ROSS API.
 
-Generally, Cognito will be used to store login credentials only and other user attributes and preferences will be stored in the DynamoDB "Users" table. However, to simplify the registring process for StaffUsers and Admins, the following custom attributes exist for StaffUsers and Admins in Cognito:
+Generally, Cognito will be used to store login credentials only and other user attributes and preferences will be stored in the DynamoDB "Users" table. However, to simplify the registring process for StaffUsers and Managers, the following custom attributes exist for StaffUsers and Managers in Cognito:
 
 - restaurantId
 - restaurantRole
 
-_restaurantId_ will hold the id of the restaurant where the user is engaged. _restaurantRole_ can hold values STAFF or ADMIN.
+_restaurantId_ will hold the id of the restaurant where the user is engaged. _restaurantRole_ can hold values STAFF or MANAGER.
 
 ## Client apps
 
-Two client apps will access the API. Client apps will implement functionality for the following sets of [user stories](./user-stories.md). Main use cases are listed below.
+Two client apps will access the API. Client apps will implement functionality for the following sets of [user stories](./user-stories.md).
+
+Core [use cases](./use-cases.md) are described and depicted with architectural diagrams.
 
 ### Customer mobile app
 
@@ -68,4 +70,3 @@ In the customers app users can create a new login (user account), find restauran
 ### StaffUser iPad app
 
 In the staffs app a manager or server can create a new login (user account), create a new restaurant and upload its profile photo, receive notifications when seatings are created by customers, accept or decline seatings, list current and upcoming seatings, assign table and take orders for customers and receive weekly reports by email.
-
