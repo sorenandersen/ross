@@ -41,7 +41,7 @@ export const apiGatewayConfig = {
 };
 
 export const lambdaConfig = {
-  functionNamePrefix: `${APP_NAME}-restapi-${STAGE}-`,
+  functionNamePrefix: `${APP_NAME}-rest-api-${STAGE}-`,
 };
 
 export const sqsConfig = {
@@ -51,8 +51,10 @@ export const sqsConfig = {
   outboundNotificationsDlqUrl: getEnvString('OUTBOUND_NOTIFICATIONS_DLQ_URL'),
 };
 
-export const emailConfig = {
-  defaultFromEmailAddress: getEnvString('DEFAULT_FROM_EMAIL'),
+export const notificationConfig = {
+  email: {
+    fromAddress: getEnvString('OUTBOUND_NOTIFICATIONS_EMAIL_FROM_ADDRESS'),
+  },
 };
 
 export const s3Config = {

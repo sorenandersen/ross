@@ -32,6 +32,9 @@ provider:
     DDB_TABLE_RESTAURANTS: ${cf:${self:custom.infraStack}.DDBTableRestaurants}
     DDB_TABLE_SEATINGS: ${cf:${self:custom.infraStack}.DDBTableSeatings}
     EVENTBRIDGE_SERVICE_BUS_NAME: ${cf:${self:custom.infraStack}.ServiceBus}
+    OUTBOUND_NOTIFICATIONS_QUEUE_URL: ${cf:${self:custom.infraStack}.OutboundNotificationsQueueUrl}
+    OUTBOUND_NOTIFICATIONS_DLQ_URL: ${cf:${self:custom.infraStack}.OutboundNotificationsDLQUrl}
+    OUTBOUND_NOTIFICATIONS_EMAIL_FROM_ADDRESS: mail@sorenandersen.com
 
 custom:
   appName: ${file(../../common/infra/provider-settings.yml):appName}
@@ -161,6 +164,23 @@ functions:
           - arn:aws:dynamodb:${self:provider.region}:${self:custom.awsAccountId}:table/${cf:${self:custom.infraStack}.DDBTableUsers}*
 
   # =================================================================
+  # SQS event handlers
+  # =================================================================
+  sqsDeliverEmail:
+    handler: src/handlers/sqs/deliver-email.handler
+    timeout: 6 # ~ 1/3 of queue's VisibilityTimeout
+    events:
+      - sqs:
+          arn: ${cf:${self:custom.infraStack}.OutboundNotificationsQueueArn}
+          batchSize: 10 # max number of messages passed to a single Lambda invocation
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - ses:SendEmail
+        Resource:
+          - arn:aws:ses:${self:provider.region}:${self:custom.awsAccountId}:identity/${self:provider.environment.OUTBOUND_NOTIFICATIONS_EMAIL_FROM_ADDRESS}
+
+  # =================================================================
   # DynamoDB stream handlers
   # =================================================================
   ddbProcessNewSeating:
@@ -169,7 +189,7 @@ functions:
       - stream:
           type: dynamodb
           arn: ${cf:${self:custom.infraStack}.DDBTableSeatingsStreamArn}
-          bisectBatchOnFunctionError: true # split batch in 2 if function returns error
+          bisectBatchOnFunctionError: true # split batch in 2 if Lambda function returns error
           maximumRetryAttempts: 3
           batchSize: 10 # Upper limit of EventBridge.PutEvents.Entries
           destinations:
