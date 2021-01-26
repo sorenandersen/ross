@@ -163,6 +163,28 @@ functions:
         Resource:
           - arn:aws:dynamodb:${self:provider.region}:${self:custom.awsAccountId}:table/${cf:${self:custom.infraStack}.DDBTableUsers}*
 
+  ebNotifySeatingCreated:
+    handler: src/handlers/eventbridge/notify-seating-created.handler
+    events:
+      - eventBridge:
+          eventBus: ${cf:${self:custom.infraStack}.ServiceBusArn}
+          pattern:
+            source:
+              - rest-api
+            detail-type:
+              - SEATING_CREATED
+    iamRoleStatements:
+      - Effect: Allow
+        Action: dynamodb:GetItem
+        Resource:
+          - arn:aws:dynamodb:${self:provider.region}:${self:custom.awsAccountId}:table/${cf:${self:custom.infraStack}.DDBTableUsers}*
+          - arn:aws:dynamodb:${self:provider.region}:${self:custom.awsAccountId}:table/${cf:${self:custom.infraStack}.DDBTableRestaurants}*
+      - Effect: Allow
+        Action:
+          - sqs:SendMessage
+        Resource:
+          - ${cf:${self:custom.infraStack}.OutboundNotificationsQueueArn}
+
   # =================================================================
   # SQS event handlers
   # =================================================================

@@ -69,4 +69,7 @@ curl -X POST -H "Authorization: Bearer ACCESS_TOKEN" -H "Content-Type: applicati
 
 # PATCH /restaurants/{id}/visibility
 curl -X PATCH -H "Authorization: Bearer ACCESS_TOKEN" -H "Content-Type: application/json" -d '{"visibility": "PUBLIC"}' https://tqq0a4mrwa.execute-api.eu-west-1.amazonaws.com/restaurants/restaurantId/visibility -i
+
+# POST /restaurants/{id}/seatings
+curl -X POST -H "Authorization: Bearer ACCESS_TOKEN" -H "Content-Type: application/json" -d '{"seatingTime":"2021-01-26T18:30:00Z", "numSeats":2, "notes":"Notes"}' https://tqq0a4mrwa.execute-api.eu-west-1.amazonaws.com/restaurants/restaurantId/seatings -i
 ```
