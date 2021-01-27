@@ -16,6 +16,7 @@ import {
 } from '@svc/lib/repos/ross-repo';
 import {
   EventDetailType,
+  Region,
   Restaurant,
   RestaurantVisibility,
   SeatingCreatedEvent,
@@ -32,23 +33,34 @@ const lambdaInvoker = new LambdaFunctionHandlerInvoker({
 
 describe('`ebNotifySeatingCreated` Lambda function', () => {
   const testSuiteName = 'notifySeatingCreatedTest';
-  const testUser: User = {
+  const testCustomer: User = {
     ...generateTestUser('notifySeatingCreatedTest'),
     id: `id-u1-${testSuiteName}`,
+  };
+  const testManager: User = {
+    ...generateTestUser('notifySeatingCreatedTest'),
+    id: `id-u2-${testSuiteName}`,
   };
   const testRestaurant: Restaurant = generateTestRestaurant(
     'r1',
     testSuiteName,
     RestaurantVisibility.PUBLIC,
+    Region.NOT_SPECIFIED,
+    testManager.id,
   );
 
   beforeAll(async () => {
-    await Promise.all([putUser(testUser), putRestaurant(testRestaurant)]);
+    await Promise.all([
+      putUser(testCustomer),
+      putUser(testManager),
+      putRestaurant(testRestaurant),
+    ]);
   });
 
   afterAll(async () => {
     await Promise.all([
-      deleteUser(testUser.id),
+      deleteUser(testCustomer.id),
+      deleteUser(testManager.id),
       deleteRestaurant(testRestaurant.id),
     ]);
   });
@@ -87,7 +99,7 @@ describe('`ebNotifySeatingCreated` Lambda function', () => {
       seating: {
         id: `notifySeatingCreatedTest2_${uuid()}`, // ensure this data is uniquely identifiable to each test run
         restaurantId: testRestaurant.id,
-        userId: testUser.id,
+        userId: testCustomer.id,
         status: SeatingStatus.PENDING,
         seatingTime: new Date().toISOString(),
         numSeats: 2,
@@ -100,11 +112,20 @@ describe('`ebNotifySeatingCreated` Lambda function', () => {
 
     // We could inspect the SQS queue here, but that's unreliable as another Lambda may get that message first.
     // So instead, we'll check the CloudWatch logs again.
-    const expectedLog = `[${ebEvent.id}] Email message queued for customer`;
-    await expect({
-      region: AWS_REGION,
-      function: lambdaFunctionName,
-      timeout: 25000,
-    }).toHaveLog(expectedLog);
+    const expectedLog1 = `[${ebEvent.id}] Email message queued for customer`;
+    const expectedLog2 = `[${ebEvent.id}] Email message queued for restaurant manager`;
+
+    await Promise.all([
+      expect({
+        region: AWS_REGION,
+        function: lambdaFunctionName,
+        timeout: 25000,
+      }).toHaveLog(expectedLog1),
+      expect({
+        region: AWS_REGION,
+        function: lambdaFunctionName,
+        timeout: 25000,
+      }).toHaveLog(expectedLog2),
+    ]);
   });
 });
