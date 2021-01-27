@@ -11,6 +11,7 @@ provider:
   logs:
     httpApi: true
   httpApi:
+    cors: true
     authorizers:
       cognitoJwtAuthorizer:
         identitySource: $request.header.Authorization
