@@ -1,0 +1,11 @@
+version: 0.2
+phases:
+  install:
+    commands:
+      - npm ci
+  pre_build:
+    commands:
+      - npm run test
+  build:
+    commands:
+      - npm run sls -- deploy --stage test --region eu-west-1
