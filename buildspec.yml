@@ -5,7 +5,11 @@ phases:
       - npm ci
   pre_build:
     commands:
-      - npm run test
+      - npm run env
+      - npm run test-unit
+      - npm run infra:deploy --stage test
+      - npm run test-integration
   build:
     commands:
-      - npm run sls -- deploy --stage test --region eu-west-1
+      - npm run api:deploy --stage test
+      - npm run test-e2e
