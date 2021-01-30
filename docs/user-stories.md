@@ -20,7 +20,7 @@ There are 2 types of users in the system:
   - seatingTime (time I want the table for)
   - numSeats (number of diners in my party)
   - notes (free text for any special requests)
-- [ ] I will receive an email acknowledgement whenever I create a new Seating
+- [x] I will receive an email acknowledgement whenever I create a new Seating
 - [ ] I will receive an email notification whenever a StaffUser accepts or declines my Seating
 - [ ] I can cancel a pending or accepted Seating that I previously created
 - [ ] When I have been seated, I can "hail" a server (e.g. to request that an order is taken, request the bill, etc)
@@ -31,7 +31,7 @@ There are 2 types of users in the system:
 - [x] I can create a new Restaurant, setting a name, description and a region from a preconfigured list of supported regions.
 - [x] I can mark restaurants that I own as publicly available.
 - [ ] I can upload a profile photo for restaurants that I own
-- [ ] I will receive an email notification whenever a customer creates a seating at my restaurant
+- [x] I will receive an email notification whenever a customer creates a seating at my restaurant
 - [ ] I will receive an email notification whenever a customer cancels a seating at my restaurant
 - [ ] I will receive a notification whenever a seated customer hails attention (this would typically be usually be implemented as a mobile push message, but we'll use email for v1)
 - [ ] I can view a list of current and upcoming Seatings at my restaurant ordered by seatingTime (filtered by >= today)
