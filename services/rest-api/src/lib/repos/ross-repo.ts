@@ -7,6 +7,7 @@ import {
   Restaurant,
   RestaurantVisibility,
   Seating,
+  SeatingStatus,
   User,
 } from '@svc/lib/types/ross-types';
 import { DocumentClient } from 'aws-sdk/clients/dynamodb';
@@ -176,6 +177,32 @@ export const getSeating = async (seatingId: string, restaurantId: string) => {
     })
     .promise();
   return response.Item as Seating | undefined;
+};
+
+export const updateSeatingStatus = async (
+  seatingId: string,
+  restaurantId: string,
+  status: SeatingStatus,
+) => {
+  try {
+    await ddb
+      .update({
+        TableName: ddbConfig.seatingsTable,
+        Key: {
+          id: seatingId,
+          restaurantId,
+        },
+        UpdateExpression: 'SET #status = :status',
+        ConditionExpression: 'attribute_exists(id)',
+        ExpressionAttributeNames: { '#status': 'status' },
+        ExpressionAttributeValues: {
+          ':status': status,
+        },
+      })
+      .promise();
+  } catch (error) {
+    log.error('repo updateSeatingStatus ERROR', error);
+  }
 };
 
 export const deleteSeating = async (
