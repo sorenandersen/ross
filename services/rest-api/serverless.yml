@@ -129,12 +129,12 @@ functions:
         Resource:
           - arn:aws:dynamodb:${self:provider.region}:${self:custom.awsAccountId}:table/${cf:${self:custom.infraStack}.DDBTableRestaurants}*
 
-  # === /restaurants/{id}/seatings
+  # === /restaurants/{restaurantId}/seatings
   httpSeatingsCreate:
     handler: src/handlers/http/seatings/create.handler
     events:
       - httpApi:
-          path: /restaurants/{id}/seatings
+          path: /restaurants/{restaurantId}/seatings
           method: POST
           authorizer: cognitoJwtAuthorizer
     iamRoleStatements:

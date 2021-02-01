@@ -12,7 +12,7 @@ import { Seating, SeatingStatus } from '@svc/lib/types/ross-types';
  * Create new restaurant and assign to current user via the "managerId" field
  */
 export const handler = wrap(async (event) => {
-  const restaurantId = event.pathParameters?.id!;
+  const restaurantId = event.pathParameters?.restaurantId!;
   log.debug(
     `${event.requestContext?.http?.method?.toUpperCase()} /restaurants/${restaurantId}/seatings called`,
     { event },

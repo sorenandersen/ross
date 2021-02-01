@@ -20,7 +20,7 @@ const userManager = new TestUserManager({
   usernamePrefix: 'createSeatingTest',
 });
 
-const apiPathTemplate = '/restaurants/{id}/seatings';
+const apiPathTemplate = '/restaurants/{restaurantId}/seatings';
 
 interface TestSeating {
   seatingTime: string;
@@ -28,7 +28,7 @@ interface TestSeating {
   notes: string;
 }
 
-describe('`POST /restaurants`', () => {
+describe('`POST /restaurants/{restaurantId}/seatings`', () => {
   let user1Context: AuthenticatedUser;
   let createdSeatingIds: string[] = [];
   const testRestaurantId = `id-createSeatingTest`;
@@ -61,7 +61,7 @@ describe('`POST /restaurants`', () => {
       event: {
         pathTemplate: apiPathTemplate,
         httpMethod: 'POST',
-        pathParameters: { id: testRestaurantId },
+        pathParameters: { restaurantId: testRestaurantId },
         body: { ...testSeating },
       },
       userContext: user1Context,
@@ -97,7 +97,7 @@ describe('`POST /restaurants`', () => {
       event: {
         pathTemplate: apiPathTemplate,
         httpMethod: 'POST',
-        pathParameters: { id: testRestaurantId },
+        pathParameters: { restaurantId: testRestaurantId },
         body: { ...testSeating },
       },
       userContext: user1Context,
@@ -118,7 +118,7 @@ describe('`POST /restaurants`', () => {
       event: {
         pathTemplate: apiPathTemplate,
         httpMethod: 'POST',
-        pathParameters: { id: testRestaurantId },
+        pathParameters: { restaurantId: testRestaurantId },
         body: { ...testSeating2 },
       },
       userContext: user1Context,
@@ -137,7 +137,7 @@ describe('`POST /restaurants`', () => {
       event: {
         pathTemplate: apiPathTemplate,
         httpMethod: 'POST',
-        pathParameters: { id: testRestaurantId },
+        pathParameters: { restaurantId: testRestaurantId },
         body: { ...testSeating },
       },
       userContext: user1Context,
@@ -152,8 +152,9 @@ describe('`POST /restaurants`', () => {
   it('returns 401 Unauthorized error if no auth token provided [e2e]', async () => {
     const response = await apiInvoker.invoke({
       event: {
-        pathTemplate: '/restaurants',
+        pathTemplate: apiPathTemplate,
         httpMethod: 'POST',
+        pathParameters: { restaurantId: testRestaurantId },
       },
     });
     expect(response.statusCode).toEqual(401);
