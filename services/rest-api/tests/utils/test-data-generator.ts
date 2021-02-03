@@ -3,6 +3,8 @@ import {
   Restaurant,
   RestaurantApprovalStatus,
   RestaurantVisibility,
+  Seating,
+  SeatingStatus,
   UserProfile,
 } from '@svc/lib/types/ross-types';
 import faker from 'faker';
@@ -45,4 +47,23 @@ export const generateTestRestaurant = (
     managerId,
     approvalStatus: RestaurantApprovalStatus.APPROVED,
   } as Restaurant;
+};
+
+export const generateTestSeating = (
+  prefix: string,
+  testSuiteName: string,
+  restaurantId: string,
+  userId: string,
+  status: SeatingStatus,
+) => {
+  return {
+    id: `id-${prefix}-${testSuiteName}`,
+    restaurantId,
+    userId,
+    status,
+    seatingTime: new Date().toISOString(),
+    numSeats: 2,
+    notes: `notes-${prefix}-${testSuiteName}`,
+    createdAt: new Date().toISOString(),
+  } as Seating;
 };
