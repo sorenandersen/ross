@@ -22,7 +22,7 @@ There are 2 types of users in the system:
   - notes (free text for any special requests)
 - [x] I will receive an email acknowledgement whenever I create a new Seating
 - [ ] I will receive an email notification whenever a StaffUser accepts or declines my Seating
-- [ ] I can cancel a pending or accepted Seating that I previously created
+- [x] I can cancel a pending or accepted Seating that I previously created
 - [ ] When I have been seated, I can "hail" a server (e.g. to request that an order is taken, request the bill, etc)
 
 ### As a StaffUser...
