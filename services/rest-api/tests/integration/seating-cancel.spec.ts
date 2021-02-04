@@ -133,39 +133,272 @@ describe(`'${HTTP_METHOD} ${API_PATH_TEMPLATE}'`, () => {
     // **
     expect(response.statusCode).toEqual(204);
 
-    // Get seating from DB and verify that status is indeed updated
+    // Get seating from DB and verify that status has been updated to CANCELLED
     const savedSeating = await getSeating(testSeating.id, testRestaurant.id);
     expect(savedSeating).toBeTruthy();
     expect(savedSeating!.status).toEqual(SeatingStatus.CANCELLED);
   });
 
-  it.todo(
-    'returns 204 No Content when cancelling a seating currently in status ACCEPTED',
-  );
+  it('returns 204 No Content when cancelling a seating currently in status ACCEPTED', async () => {
+    // **
+    // Arrange
+    // **
+    const testRestaurant = await createTestRestaurant('r2');
+    const testSeating = await createTestSeating(
+      's2',
+      testRestaurant.id,
+      user1Context.user.id,
+      SeatingStatus.ACCEPTED,
+    );
 
-  it.todo(
-    'returns 204 No Content when cancelling a seating currently in status CANCELLED',
-  );
+    // **
+    // Act
+    // **
+    const response = await apiInvoker.invoke({
+      event: {
+        pathTemplate: API_PATH_TEMPLATE,
+        httpMethod: HTTP_METHOD,
+        pathParameters: {
+          restaurantId: testRestaurant.id,
+          seatingId: testSeating.id,
+        },
+      },
+      userContext: user1Context,
+    });
 
-  it.todo(
-    'returns 409 Conflict when cancelling a seating currently in status DECLINED',
-  );
+    // **
+    // Assert
+    // **
+    expect(response.statusCode).toEqual(204);
 
-  it.todo(
-    'returns 409 Conflict when cancelling a seating currently in status SEATED',
-  );
+    // Get seating from DB and verify that status has been updated to CANCELLED
+    const savedSeating = await getSeating(testSeating.id, testRestaurant.id);
+    expect(savedSeating).toBeTruthy();
+    expect(savedSeating!.status).toEqual(SeatingStatus.CANCELLED);
+  });
 
-  it.todo(
-    'returns 409 Conflict when cancelling a seating currently in status CLOSED',
-  );
+  it('returns 204 No Content when cancelling a seating currently in status CANCELLED', async () => {
+    // **
+    // Arrange
+    // **
+    const testRestaurant = await createTestRestaurant('r3');
+    const testSeating = await createTestSeating(
+      's3',
+      testRestaurant.id,
+      user1Context.user.id,
+      SeatingStatus.CANCELLED,
+    );
 
-  it.todo(
-    'returns 404 Not Found when attempting cancellation of a seating that does not exist',
-  );
+    // **
+    // Act
+    // **
+    const response = await apiInvoker.invoke({
+      event: {
+        pathTemplate: API_PATH_TEMPLATE,
+        httpMethod: HTTP_METHOD,
+        pathParameters: {
+          restaurantId: testRestaurant.id,
+          seatingId: testSeating.id,
+        },
+      },
+      userContext: user1Context,
+    });
 
-  it.todo(
-    'returns 403 Forbidden when attempting cancellation of a seating not associated with the issuing user',
-  );
+    // **
+    // Assert
+    // **
+    expect(response.statusCode).toEqual(204);
+
+    // Get seating from DB and verify that status is CANCELLED
+    const savedSeating = await getSeating(testSeating.id, testRestaurant.id);
+    expect(savedSeating).toBeTruthy();
+    expect(savedSeating!.status).toEqual(SeatingStatus.CANCELLED);
+  });
+
+  it('returns 409 Conflict when cancelling a seating currently in status DECLINED', async () => {
+    // **
+    // Arrange
+    // **
+    const initialSeatingStatus = SeatingStatus.DECLINED;
+    const testRestaurant = await createTestRestaurant('r4');
+    const testSeating = await createTestSeating(
+      's4',
+      testRestaurant.id,
+      user1Context.user.id,
+      initialSeatingStatus,
+    );
+
+    // **
+    // Act
+    // **
+    const response = await apiInvoker.invoke({
+      event: {
+        pathTemplate: API_PATH_TEMPLATE,
+        httpMethod: HTTP_METHOD,
+        pathParameters: {
+          restaurantId: testRestaurant.id,
+          seatingId: testSeating.id,
+        },
+      },
+      userContext: user1Context,
+    });
+
+    // **
+    // Assert
+    // **
+    expect(response.statusCode).toEqual(409);
+
+    // Get seating from DB and verify that status has not changed
+    const savedSeating = await getSeating(testSeating.id, testRestaurant.id);
+    expect(savedSeating).toBeTruthy();
+    expect(savedSeating!.status).toEqual(initialSeatingStatus);
+  });
+
+  it('returns 409 Conflict when cancelling a seating currently in status SEATED', async () => {
+    // **
+    // Arrange
+    // **
+    const initialSeatingStatus = SeatingStatus.SEATED;
+    const testRestaurant = await createTestRestaurant('r5');
+    const testSeating = await createTestSeating(
+      's5',
+      testRestaurant.id,
+      user1Context.user.id,
+      initialSeatingStatus,
+    );
+
+    // **
+    // Act
+    // **
+    const response = await apiInvoker.invoke({
+      event: {
+        pathTemplate: API_PATH_TEMPLATE,
+        httpMethod: HTTP_METHOD,
+        pathParameters: {
+          restaurantId: testRestaurant.id,
+          seatingId: testSeating.id,
+        },
+      },
+      userContext: user1Context,
+    });
+
+    // **
+    // Assert
+    // **
+    expect(response.statusCode).toEqual(409);
+
+    // Get seating from DB and verify that status has not changed
+    const savedSeating = await getSeating(testSeating.id, testRestaurant.id);
+    expect(savedSeating).toBeTruthy();
+    expect(savedSeating!.status).toEqual(initialSeatingStatus);
+  });
+
+  it('returns 409 Conflict when cancelling a seating currently in status CLOSED', async () => {
+    // **
+    // Arrange
+    // **
+    const initialSeatingStatus = SeatingStatus.CLOSED;
+    const testRestaurant = await createTestRestaurant('r6');
+    const testSeating = await createTestSeating(
+      's6',
+      testRestaurant.id,
+      user1Context.user.id,
+      initialSeatingStatus,
+    );
+
+    // **
+    // Act
+    // **
+    const response = await apiInvoker.invoke({
+      event: {
+        pathTemplate: API_PATH_TEMPLATE,
+        httpMethod: HTTP_METHOD,
+        pathParameters: {
+          restaurantId: testRestaurant.id,
+          seatingId: testSeating.id,
+        },
+      },
+      userContext: user1Context,
+    });
+
+    // **
+    // Assert
+    // **
+    expect(response.statusCode).toEqual(409);
+
+    // Get seating from DB and verify that status has not changed
+    const savedSeating = await getSeating(testSeating.id, testRestaurant.id);
+    expect(savedSeating).toBeTruthy();
+    expect(savedSeating!.status).toEqual(initialSeatingStatus);
+  });
+
+  it('returns 403 Forbidden when attempting cancellation of a seating not associated with the issuing user', async () => {
+    // **
+    // Arrange
+    // **
+    const initialSeatingStatus = SeatingStatus.PENDING;
+    const testRestaurant = await createTestRestaurant('r7');
+    const testSeating = await createTestSeating(
+      's7',
+      testRestaurant.id,
+      user1Context.user.id,
+      initialSeatingStatus,
+    );
+
+    const user2Context = await userManager.createAndSignInUser();
+
+    // **
+    // Act
+    // **
+    const response = await apiInvoker.invoke({
+      event: {
+        pathTemplate: API_PATH_TEMPLATE,
+        httpMethod: HTTP_METHOD,
+        pathParameters: {
+          restaurantId: testRestaurant.id,
+          seatingId: testSeating.id,
+        },
+      },
+      userContext: user2Context,
+    });
+
+    // **
+    // Assert
+    // **
+    expect(response.statusCode).toEqual(403);
+
+    // Get seating from DB and verify that status has not changed
+    const savedSeating = await getSeating(testSeating.id, testRestaurant.id);
+    expect(savedSeating).toBeTruthy();
+    expect(savedSeating!.status).toEqual(initialSeatingStatus);
+  });
+
+  it('returns 404 Not Found when attempting cancellation of a seating that does not exist', async () => {
+    // **
+    // Arrange
+    // **
+    // Deliberately not creating test data ...
+
+    // **
+    // Act
+    // **
+    const response = await apiInvoker.invoke({
+      event: {
+        pathTemplate: API_PATH_TEMPLATE,
+        httpMethod: HTTP_METHOD,
+        pathParameters: {
+          restaurantId: 'foo',
+          seatingId: 'bar',
+        },
+      },
+      userContext: user1Context,
+    });
+
+    // **
+    // Assert
+    // **
+    expect(response.statusCode).toEqual(404);
+  });
 
   // E2E test: APIGW authorizer configuration
   it('returns 401 Unauthorized error if no auth token provided [e2e]', async () => {

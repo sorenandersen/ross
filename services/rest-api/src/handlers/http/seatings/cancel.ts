@@ -31,16 +31,27 @@ export const handler = wrap(async (event) => {
     throw new createError.Forbidden(errorMessages.forbidden);
   }
 
-  // Validate that current status is either PENDING or ACCEPTED
-  if (
-    seating.status !== SeatingStatus.PENDING &&
-    seating.status !== SeatingStatus.ACCEPTED
-  ) {
-    throw new createError.Conflict('Cancellation no longer allowed');
+  switch (seating.status) {
+    case SeatingStatus.PENDING:
+    case SeatingStatus.ACCEPTED:
+      // Seating meets the requirement for cancellation
+      // Perform update
+      await updateSeatingStatus(
+        seatingId,
+        restaurantId,
+        SeatingStatus.CANCELLED,
+      );
+      break;
+    case SeatingStatus.CANCELLED:
+      // Seating already cancelled - no actions needed
+      break;
+    default:
+      // Invalid state for cancellation
+      // Signal error
+      throw new createError.Conflict(
+        'Cancellation not allowed for seating in current status',
+      );
   }
-
-  // Provided visibility is valid. Perform update
-  await updateSeatingStatus(seatingId, restaurantId, SeatingStatus.CANCELLED);
 
   return {
     statusCode: 204,
