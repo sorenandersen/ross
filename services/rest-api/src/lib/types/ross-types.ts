@@ -89,6 +89,7 @@ export interface Seating {
 export enum EventDetailType {
   USER_CREATED = 'USER_CREATED',
   SEATING_CREATED = 'SEATING_CREATED',
+  SEATING_STATUS_UPDATED = 'SEATING_STATUS_UPDATED',
 }
 
 export interface UserCreatedEvent {
@@ -99,4 +100,11 @@ export interface SeatingCreatedEvent {
   seating: Seating;
 }
 
-export type PublishableEventDetail = UserCreatedEvent | SeatingCreatedEvent;
+export interface SeatingStatusUpdatedEvent {
+  seating: Seating;
+}
+
+export type PublishableEventDetail =
+  | UserCreatedEvent
+  | SeatingCreatedEvent
+  | SeatingStatusUpdatedEvent;

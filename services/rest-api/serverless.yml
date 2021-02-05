@@ -221,8 +221,8 @@ functions:
   # =================================================================
   # DynamoDB stream handlers
   # =================================================================
-  ddbProcessNewSeating:
-    handler: src/handlers/dynamodb/process-new-seating.handler
+  ddbProcessSeatingStream:
+    handler: src/handlers/dynamodb/process-seating-stream.handler
     events:
       - stream:
           type: dynamodb
