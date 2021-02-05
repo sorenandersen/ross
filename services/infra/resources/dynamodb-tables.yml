@@ -65,7 +65,7 @@ Resources:
         - AttributeName: id
           KeyType: RANGE
       StreamSpecification:
-        StreamViewType: NEW_IMAGE
+        StreamViewType: NEW_AND_OLD_IMAGES
 
   # Dead letter queue for failed DDB stream events
   DDBSeatingsStreamDLQ:
