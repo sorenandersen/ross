@@ -89,7 +89,7 @@ export interface Seating {
 export enum EventDetailType {
   USER_CREATED = 'USER_CREATED',
   SEATING_CREATED = 'SEATING_CREATED',
-  SEATING_STATUS_UPDATED = 'SEATING_STATUS_UPDATED',
+  SEATING_CANCELLED = 'SEATING_CANCELLED',
 }
 
 export interface UserCreatedEvent {

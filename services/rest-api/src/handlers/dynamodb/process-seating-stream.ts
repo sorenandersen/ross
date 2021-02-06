@@ -36,8 +36,8 @@ const publishSeatingCreatedEvents = async (event: DynamoDBStreamEvent) => {
   if (newSeatingEvents.length) {
     // Publish events in a single request to EventBridge API
     await publishEvents(newSeatingEvents, EventDetailType.SEATING_CREATED);
+    log.debug(`Processed ${newSeatingEvents.length} new seating events.`);
   }
-  log.debug(`Processed ${newSeatingEvents.length} new seating events.`);
 };
 
 const publishSeatingUpdatedEvents = async (event: DynamoDBStreamEvent) => {
@@ -67,14 +67,20 @@ const publishSeatingUpdatedEvents = async (event: DynamoDBStreamEvent) => {
       return { seating };
     });
 
+  // Now filter per new status
   if (seatingStatusUpdatedEvents.length) {
-    // Publish events in a single request to EventBridge API
-    await publishEvents(
-      seatingStatusUpdatedEvents,
-      EventDetailType.SEATING_STATUS_UPDATED,
+    const seatingCancelledEvents = seatingStatusUpdatedEvents.filter(
+      (event) => event.seating.status === SeatingStatus.CANCELLED,
     );
+    if (seatingCancelledEvents.length) {
+      // Publish events in a single request to EventBridge API
+      await publishEvents(
+        seatingCancelledEvents,
+        EventDetailType.SEATING_CANCELLED,
+      );
+      log.debug(
+        `Processed ${seatingCancelledEvents.length} seating cancelled events.`,
+      );
+    }
   }
-  log.debug(
-    `Processed ${seatingStatusUpdatedEvents.length} seating updated events.`,
-  );
 };
