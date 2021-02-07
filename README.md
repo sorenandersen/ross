@@ -57,19 +57,36 @@ npm run test-all
 ```
 # GET /me
 curl -H "Authorization: Bearer ACCESS_TOKEN" https://rl0a2vvuzk.execute-api.eu-west-1.amazonaws.com/me -i
+```
 
+#### Restaurants
+
+```
+# Fetch single restaurant
 # GET /restaurants
 curl -H "Authorization: Bearer ACCESS_TOKEN" https://rl0a2vvuzk.execute-api.eu-west-1.amazonaws.com/restaurants/restaurantId -i
 
+# Fetch restaurants within specified region
 # GET /restaurants/region/{region}
 curl -H "Authorization: Bearer ACCESS_TOKEN" https://rl0a2vvuzk.execute-api.eu-west-1.amazonaws.com/restaurants/region/FOO -i
 
+# Create restaurant
 # POST /restaurants
 curl -X POST -H "Authorization: Bearer ACCESS_TOKEN" -H "Content-Type: application/json" -d '{"name":"test-curl-1", "description":"test-curl","region":"NOT_SPECIFIED"}' https://rl0a2vvuzk.execute-api.eu-west-1.amazonaws.com/restaurants -i
 
+# Update restaurant visibility to PUBLIC or PRIVATE
 # PATCH /restaurants/{id}/visibility
 curl -X PATCH -H "Authorization: Bearer ACCESS_TOKEN" -H "Content-Type: application/json" -d '{"visibility": "PUBLIC"}' https://rl0a2vvuzk.execute-api.eu-west-1.amazonaws.com/restaurants/restaurantId/visibility -i
+```
 
+#### Seatings
+
+```
+# Create seating
 # POST /restaurants/{id}/seatings
 curl -X POST -H "Authorization: Bearer ACCESS_TOKEN" -H "Content-Type: application/json" -d '{"seatingTime":"2021-01-26T18:30:00Z", "numSeats":2, "notes":"Notes"}' https://rl0a2vvuzk.execute-api.eu-west-1.amazonaws.com/restaurants/restaurantId/seatings -i
+
+# Cancel seating
+# DELETE /restaurants/{restaurantId}/seatings/{seatingId}/cancel
+curl -X DELETE -H "Authorization: Bearer ACCESS_TOKEN" https://rl0a2vvuzk.execute-api.eu-west-1.amazonaws.com/restaurants/restaurantId/seatings/seatingId/cancel -i
 ```

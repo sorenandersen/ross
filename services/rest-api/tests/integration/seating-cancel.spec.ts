@@ -39,7 +39,7 @@ const HTTP_METHOD = 'DELETE';
 const API_PATH_TEMPLATE =
   '/restaurants/{restaurantId}/seatings/{seatingId}/cancel';
 
-describe(`'${HTTP_METHOD} ${API_PATH_TEMPLATE}'`, () => {
+describe('`DELETE /restaurants/{restaurantId}/seatings/{seatingId}/cancel`', () => {
   let user1Context: AuthenticatedUser;
   let createdRestaurants: Restaurant[] = [];
   let createdSeatings: Seating[] = [];
