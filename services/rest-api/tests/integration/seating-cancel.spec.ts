@@ -23,6 +23,10 @@ import {
   SeatingStatus,
 } from '@svc/lib/types/ross-types';
 
+const HTTP_METHOD = 'DELETE';
+const API_PATH_TEMPLATE =
+  '/restaurants/{restaurantId}/seatings/{seatingId}/cancel';
+
 const apiInvoker = new ApiGatewayHandlerInvoker({
   baseUrl: apiGatewayConfig.getBaseUrl(),
   handler,
@@ -34,10 +38,6 @@ const userManager = new TestUserManager({
   region: AWS_REGION,
   usernamePrefix: 'cancelSeatingTest',
 });
-
-const HTTP_METHOD = 'DELETE';
-const API_PATH_TEMPLATE =
-  '/restaurants/{restaurantId}/seatings/{seatingId}/cancel';
 
 describe('`DELETE /restaurants/{restaurantId}/seatings/{seatingId}/cancel`', () => {
   let user1Context: AuthenticatedUser;

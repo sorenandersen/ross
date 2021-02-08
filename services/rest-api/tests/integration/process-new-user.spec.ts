@@ -10,6 +10,10 @@ const userManager = new TestUserManager({
 });
 
 describe('`ebProcessNewUser` Lambda function', () => {
+  afterAll(async () => {
+    await userManager.dispose();
+  });
+
   it('a confirmed user sign up in Cognito should save the user profile to DynamoDB', async () => {
     // Arrange:
     // No arrangement to be done; createUser call kicks off the flow
@@ -27,9 +31,5 @@ describe('`ebProcessNewUser` Lambda function', () => {
     expect(ddbUser).toBeTruthy();
     expect(ddbUser?.email).toEqual(userContext.email);
     expect(ddbUser?.name).toEqual(userContext.name);
-  });
-
-  afterAll(async () => {
-    await userManager.dispose();
   });
 });

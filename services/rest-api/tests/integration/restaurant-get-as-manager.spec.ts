@@ -7,6 +7,9 @@ import { deleteRestaurant } from '@svc/lib/repos/ross-repo';
 import { Region, Restaurant, UserRole } from '@svc/lib/types/ross-types';
 import { InvocationMode } from '@tests/utils/handler-invokers/types';
 
+const HTTP_METHOD = 'GET';
+const API_PATH_TEMPLATE = '/restaurants/{id}';
+
 const createApiInvoker = new ApiGatewayHandlerInvoker({
   baseUrl: apiGatewayConfig.getBaseUrl(),
   handler: createHandler,
@@ -49,6 +52,10 @@ describe('`GET /restaurants/{id}` as manager', () => {
     createdRestaurantIds.length = 0;
   };
 
+  afterAll(async () => {
+    await Promise.all([userManager.dispose(), deleteTestRestaurants()]);
+  });
+
   it('creates a new Restaurant but subsequent GET returns 404 if user does not refresh Cognito token', async () => {
     const manager1Context = await userManager.createAndSignInUser();
 
@@ -84,8 +91,8 @@ describe('`GET /restaurants/{id}` as manager', () => {
     // Effectively this is requesting the resource similar to a logged-in customer.
     const getResponse = await getApiInvoker.invoke({
       event: {
-        pathTemplate: '/restaurants/{id}',
-        httpMethod: 'GET',
+        pathTemplate: API_PATH_TEMPLATE,
+        httpMethod: HTTP_METHOD,
         pathParameters: { id: testRestaurantId },
       },
       userContext: manager1Context,
@@ -140,8 +147,8 @@ describe('`GET /restaurants/{id}` as manager', () => {
     // **
     const getResponse = await getApiInvoker.invoke({
       event: {
-        pathTemplate: '/restaurants/{id}',
-        httpMethod: 'GET',
+        pathTemplate: API_PATH_TEMPLATE,
+        httpMethod: HTTP_METHOD,
         pathParameters: { id: testRestaurantId },
       },
       userContext: manager2Context,
@@ -161,15 +168,11 @@ describe('`GET /restaurants/{id}` as manager', () => {
   it('returns 401 Unauthorized error if no auth token provided [e2e]', async () => {
     const response = await getApiInvoker.invoke({
       event: {
-        pathTemplate: '/restaurants/{id}',
-        httpMethod: 'GET',
+        pathTemplate: API_PATH_TEMPLATE,
+        httpMethod: HTTP_METHOD,
         pathParameters: { id: 'anything' },
       },
     });
     expect(response.statusCode).toEqual(401);
-  });
-
-  afterAll(async () => {
-    await Promise.all([userManager.dispose(), deleteTestRestaurants()]);
   });
 });

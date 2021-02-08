@@ -9,6 +9,9 @@ import { generateTestRestaurant } from '@tests/utils/test-data-generator';
 import { putRestaurant, deleteRestaurant } from '@svc/lib/repos/ross-repo';
 import { Restaurant, RestaurantVisibility } from '@svc/lib/types/ross-types';
 
+const HTTP_METHOD = 'GET';
+const API_PATH_TEMPLATE = '/restaurants/{id}';
+
 const apiInvoker = new ApiGatewayHandlerInvoker({
   baseUrl: apiGatewayConfig.getBaseUrl(),
   handler: handler,
@@ -50,6 +53,10 @@ describe('`GET /restaurants/{id}` as customer', () => {
     user1Context = await userManager.createAndSignInUser();
   });
 
+  afterAll(async () => {
+    await Promise.all([userManager.dispose(), deleteTestRestaurants()]);
+  });
+
   it('returns 200 OK when requesting a valid and PUBLIC restaurant id', async () => {
     // **
     // Arrange
@@ -64,8 +71,8 @@ describe('`GET /restaurants/{id}` as customer', () => {
     // **
     const response = await apiInvoker.invoke({
       event: {
-        pathTemplate: '/restaurants/{id}',
-        httpMethod: 'GET',
+        pathTemplate: API_PATH_TEMPLATE,
+        httpMethod: HTTP_METHOD,
         pathParameters: { id: testRestaurant.id },
       },
       userContext: user1Context,
@@ -100,8 +107,8 @@ describe('`GET /restaurants/{id}` as customer', () => {
     // **
     const response = await apiInvoker.invoke({
       event: {
-        pathTemplate: '/restaurants/{id}',
-        httpMethod: 'GET',
+        pathTemplate: API_PATH_TEMPLATE,
+        httpMethod: HTTP_METHOD,
         pathParameters: { id: testRestaurant.id },
       },
       userContext: user1Context,
@@ -124,8 +131,8 @@ describe('`GET /restaurants/{id}` as customer', () => {
     // **
     const response = await apiInvoker.invoke({
       event: {
-        pathTemplate: '/restaurants/{id}',
-        httpMethod: 'GET',
+        pathTemplate: API_PATH_TEMPLATE,
+        httpMethod: HTTP_METHOD,
         pathParameters: { id: 'someId' },
       },
       userContext: user1Context,
@@ -141,15 +148,11 @@ describe('`GET /restaurants/{id}` as customer', () => {
   it('returns 401 Unauthorized error if no auth token provided [e2e]', async () => {
     const response = await apiInvoker.invoke({
       event: {
-        pathTemplate: '/restaurants/{id}',
-        httpMethod: 'GET',
+        pathTemplate: API_PATH_TEMPLATE,
+        httpMethod: HTTP_METHOD,
         pathParameters: { id: 'someId' },
       },
     });
     expect(response.statusCode).toEqual(401);
-  });
-
-  afterAll(async () => {
-    await Promise.all([userManager.dispose(), deleteTestRestaurants()]);
   });
 });

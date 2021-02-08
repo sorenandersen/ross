@@ -6,7 +6,10 @@ import {
   TestUserManager,
 } from '@tests/utils/test-user-manager';
 import { getSeating, deleteSeating } from '@svc/lib/repos/ross-repo';
-import { Seating, SeatingStatus } from '@svc/lib/types/ross-types';
+import { SeatingStatus } from '@svc/lib/types/ross-types';
+
+const HTTP_METHOD = 'POST';
+const API_PATH_TEMPLATE = '/restaurants/{restaurantId}/seatings';
 
 const apiInvoker = new ApiGatewayHandlerInvoker({
   baseUrl: apiGatewayConfig.getBaseUrl(),
@@ -19,8 +22,6 @@ const userManager = new TestUserManager({
   region: AWS_REGION,
   usernamePrefix: 'createSeatingTest',
 });
-
-const apiPathTemplate = '/restaurants/{restaurantId}/seatings';
 
 interface TestSeating {
   seatingTime: string;
@@ -55,12 +56,16 @@ describe('`POST /restaurants/{restaurantId}/seatings`', () => {
     user1Context = await userManager.createAndSignInUser();
   });
 
+  afterAll(async () => {
+    await Promise.all([userManager.dispose(), deleteTestSeatings()]);
+  });
+
   it('creates a new Seating in DDB whenever required fields are provided', async () => {
     const testSeating = createTestSeating('s1');
     const response = await apiInvoker.invoke({
       event: {
-        pathTemplate: apiPathTemplate,
-        httpMethod: 'POST',
+        pathTemplate: API_PATH_TEMPLATE,
+        httpMethod: HTTP_METHOD,
         pathParameters: { restaurantId: testRestaurantId },
         body: { ...testSeating },
       },
@@ -95,8 +100,8 @@ describe('`POST /restaurants/{restaurantId}/seatings`', () => {
 
     const response = await apiInvoker.invoke({
       event: {
-        pathTemplate: apiPathTemplate,
-        httpMethod: 'POST',
+        pathTemplate: API_PATH_TEMPLATE,
+        httpMethod: HTTP_METHOD,
         pathParameters: { restaurantId: testRestaurantId },
         body: { ...testSeating },
       },
@@ -116,8 +121,8 @@ describe('`POST /restaurants/{restaurantId}/seatings`', () => {
 
     const response = await apiInvoker.invoke({
       event: {
-        pathTemplate: apiPathTemplate,
-        httpMethod: 'POST',
+        pathTemplate: API_PATH_TEMPLATE,
+        httpMethod: HTTP_METHOD,
         pathParameters: { restaurantId: testRestaurantId },
         body: { ...testSeating2 },
       },
@@ -135,8 +140,8 @@ describe('`POST /restaurants/{restaurantId}/seatings`', () => {
 
     const response = await apiInvoker.invoke({
       event: {
-        pathTemplate: apiPathTemplate,
-        httpMethod: 'POST',
+        pathTemplate: API_PATH_TEMPLATE,
+        httpMethod: HTTP_METHOD,
         pathParameters: { restaurantId: testRestaurantId },
         body: { ...testSeating },
       },
@@ -152,15 +157,11 @@ describe('`POST /restaurants/{restaurantId}/seatings`', () => {
   it('returns 401 Unauthorized error if no auth token provided [e2e]', async () => {
     const response = await apiInvoker.invoke({
       event: {
-        pathTemplate: apiPathTemplate,
-        httpMethod: 'POST',
+        pathTemplate: API_PATH_TEMPLATE,
+        httpMethod: HTTP_METHOD,
         pathParameters: { restaurantId: testRestaurantId },
       },
     });
     expect(response.statusCode).toEqual(401);
-  });
-
-  afterAll(async () => {
-    await Promise.all([userManager.dispose(), deleteTestSeatings()]);
   });
 });

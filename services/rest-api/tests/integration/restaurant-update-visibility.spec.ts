@@ -20,6 +20,9 @@ import {
   UserRole,
 } from '@svc/lib/types/ross-types';
 
+const HTTP_METHOD = 'PATCH';
+const API_PATH_TEMPLATE = '/restaurants/{id}/visibility';
+
 const apiInvoker = new ApiGatewayHandlerInvoker({
   baseUrl: apiGatewayConfig.getBaseUrl(),
   handler,
@@ -67,6 +70,10 @@ describe('`PATCH /restaurants/{id}/visibility`', () => {
     manager1Context = await userManager.createAndSignInUser();
   });
 
+  afterAll(async () => {
+    await Promise.all([userManager.dispose(), deleteTestRestaurants()]);
+  });
+
   it('returns 204 No Content when a valid visibility is provided', async () => {
     // **
     // Arrange
@@ -96,8 +103,8 @@ describe('`PATCH /restaurants/{id}/visibility`', () => {
     // **
     const response = await apiInvoker.invoke({
       event: {
-        pathTemplate: '/restaurants/{id}/visibility',
-        httpMethod: 'PATCH',
+        pathTemplate: API_PATH_TEMPLATE,
+        httpMethod: HTTP_METHOD,
         pathParameters: { id: testRestaurant.id },
         body: { visibility: newVisibility },
       },
@@ -144,8 +151,8 @@ describe('`PATCH /restaurants/{id}/visibility`', () => {
     // **
     const response = await apiInvoker.invoke({
       event: {
-        pathTemplate: '/restaurants/{id}/visibility',
-        httpMethod: 'PATCH',
+        pathTemplate: API_PATH_TEMPLATE,
+        httpMethod: HTTP_METHOD,
         pathParameters: { id: testRestaurant.id },
         body: { visibility: newVisibility },
       },
@@ -182,8 +189,8 @@ describe('`PATCH /restaurants/{id}/visibility`', () => {
     // **
     const response = await apiInvoker.invoke({
       event: {
-        pathTemplate: '/restaurants/{id}/visibility',
-        httpMethod: 'PATCH',
+        pathTemplate: API_PATH_TEMPLATE,
+        httpMethod: HTTP_METHOD,
         pathParameters: { id: testRestaurant.id },
         body: { visibility: newVisibility },
       },
@@ -205,15 +212,11 @@ describe('`PATCH /restaurants/{id}/visibility`', () => {
   it('returns 401 Unauthorized error if no auth token provided [e2e]', async () => {
     const response = await apiInvoker.invoke({
       event: {
-        pathTemplate: '/restaurants/{id}/visibility',
-        httpMethod: 'PATCH',
-        pathParameters: { id: 'soneId' },
+        pathTemplate: API_PATH_TEMPLATE,
+        httpMethod: HTTP_METHOD,
+        pathParameters: { id: 'someId' },
       },
     });
     expect(response.statusCode).toEqual(401);
-  });
-
-  afterAll(async () => {
-    await Promise.all([userManager.dispose(), deleteTestRestaurants()]);
   });
 });

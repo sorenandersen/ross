@@ -8,6 +8,9 @@ import {
 import { getRestaurant, deleteRestaurant } from '@svc/lib/repos/ross-repo';
 import { Region, RestaurantVisibility } from '@svc/lib/types/ross-types';
 
+const HTTP_METHOD = 'POST';
+const API_PATH_TEMPLATE = '/restaurants';
+
 const apiInvoker = new ApiGatewayHandlerInvoker({
   baseUrl: apiGatewayConfig.getBaseUrl(),
   handler,
@@ -50,12 +53,16 @@ describe('`POST /restaurants`', () => {
     manager1Context = await userManager.createAndSignInUser();
   });
 
+  afterAll(async () => {
+    await Promise.all([userManager.dispose(), deleteTestRestaurants()]);
+  });
+
   it('creates a new Restaurant in DDB whenever required fields are provided', async () => {
     const testRestaurant = createTestRestaurant('r1');
     const response = await apiInvoker.invoke({
       event: {
-        pathTemplate: '/restaurants',
-        httpMethod: 'POST',
+        pathTemplate: API_PATH_TEMPLATE,
+        httpMethod: HTTP_METHOD,
         pathParameters: {},
         body: { ...testRestaurant },
       },
@@ -86,14 +93,10 @@ describe('`POST /restaurants`', () => {
   it('returns 401 Unauthorized error if no auth token provided [e2e]', async () => {
     const response = await apiInvoker.invoke({
       event: {
-        pathTemplate: '/restaurants',
-        httpMethod: 'POST',
+        pathTemplate: API_PATH_TEMPLATE,
+        httpMethod: HTTP_METHOD,
       },
     });
     expect(response.statusCode).toEqual(401);
-  });
-
-  afterAll(async () => {
-    await Promise.all([userManager.dispose(), deleteTestRestaurants()]);
   });
 });

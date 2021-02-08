@@ -15,6 +15,9 @@ import {
   RestaurantVisibility,
 } from '@svc/lib/types/ross-types';
 
+const HTTP_METHOD = 'GET';
+const API_PATH_TEMPLATE = '/restaurants/region/{region}';
+
 const apiInvoker = new ApiGatewayHandlerInvoker({
   baseUrl: apiGatewayConfig.getBaseUrl(),
   handler: handler,
@@ -62,6 +65,10 @@ describe('`GET /restaurants/region/{region}`', () => {
     await deleteTestRestaurants();
   });
 
+  afterAll(async () => {
+    await Promise.all([userManager.dispose(), deleteTestRestaurants()]);
+  });
+
   it('only returns restaurants within the specified region', async () => {
     // **
     // Arrange
@@ -77,8 +84,8 @@ describe('`GET /restaurants/region/{region}`', () => {
     const requestedRegion = Region.FOO;
     const response = await apiInvoker.invoke({
       event: {
-        pathTemplate: '/restaurants/region/{region}',
-        httpMethod: 'GET',
+        pathTemplate: API_PATH_TEMPLATE,
+        httpMethod: HTTP_METHOD,
         pathParameters: { region: requestedRegion },
       },
       userContext: user1Context,
@@ -107,8 +114,8 @@ describe('`GET /restaurants/region/{region}`', () => {
     const requestedRegionQueryStringParam = 'Foo';
     const response = await apiInvoker.invoke({
       event: {
-        pathTemplate: '/restaurants/region/{region}',
-        httpMethod: 'GET',
+        pathTemplate: API_PATH_TEMPLATE,
+        httpMethod: HTTP_METHOD,
         pathParameters: { region: requestedRegionQueryStringParam },
       },
       userContext: user1Context,
@@ -139,8 +146,8 @@ describe('`GET /restaurants/region/{region}`', () => {
     const requestedRegion = Region.FOO;
     const response = await apiInvoker.invoke({
       event: {
-        pathTemplate: '/restaurants/region/{region}',
-        httpMethod: 'GET',
+        pathTemplate: API_PATH_TEMPLATE,
+        httpMethod: HTTP_METHOD,
         pathParameters: { region: requestedRegion },
       },
       userContext: user1Context,
@@ -169,8 +176,8 @@ describe('`GET /restaurants/region/{region}`', () => {
     // **
     const response = await apiInvoker.invoke({
       event: {
-        pathTemplate: '/restaurants/region/{region}',
-        httpMethod: 'GET',
+        pathTemplate: API_PATH_TEMPLATE,
+        httpMethod: HTTP_METHOD,
         pathParameters: { region: Region.FOO },
       },
       userContext: user1Context,
@@ -195,15 +202,11 @@ describe('`GET /restaurants/region/{region}`', () => {
   it('returns 401 Unauthorized error if no auth token provided [e2e]', async () => {
     const response = await apiInvoker.invoke({
       event: {
-        pathTemplate: '/restaurants/region/{region}',
-        httpMethod: 'GET',
+        pathTemplate: API_PATH_TEMPLATE,
+        httpMethod: HTTP_METHOD,
         pathParameters: { region: Region.FOO },
       },
     });
     expect(response.statusCode).toEqual(401);
-  });
-
-  afterAll(async () => {
-    await Promise.all([userManager.dispose(), deleteTestRestaurants()]);
   });
 });

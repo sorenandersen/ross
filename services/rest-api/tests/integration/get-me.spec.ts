@@ -4,6 +4,9 @@ import { apiGatewayConfig, AWS_REGION, cognitoConfig } from '@svc/config';
 import { ApiGatewayHandlerInvoker } from '@tests/utils/handler-invokers/api-gateway-handler-invoker';
 import { TestUserManager } from '@tests/utils/test-user-manager';
 
+const HTTP_METHOD = 'GET';
+const API_PATH_TEMPLATE = '/me';
+
 const apiInvoker = new ApiGatewayHandlerInvoker({
   baseUrl: apiGatewayConfig.getBaseUrl(),
   handler,
@@ -17,12 +20,16 @@ const userManager = new TestUserManager({
 });
 
 describe('`GET /me`', () => {
+  afterAll(async () => {
+    await userManager.dispose();
+  });
+
   it('returns user profile fields for logged in users', async () => {
     const userContext = await userManager.createAndSignInUser();
     const response = await apiInvoker.invoke({
       event: {
-        pathTemplate: '/me',
-        httpMethod: 'GET',
+        pathTemplate: API_PATH_TEMPLATE,
+        httpMethod: HTTP_METHOD,
       },
       userContext,
     });
@@ -38,14 +45,10 @@ describe('`GET /me`', () => {
   it('returns 401 Unauthorized error if no auth token provided [e2e]', async () => {
     const response = await apiInvoker.invoke({
       event: {
-        pathTemplate: '/me',
-        httpMethod: 'GET',
+        pathTemplate: API_PATH_TEMPLATE,
+        httpMethod: HTTP_METHOD,
       },
     });
     expect(response.statusCode).toEqual(401);
-  });
-
-  afterAll(async () => {
-    await userManager.dispose();
   });
 });
