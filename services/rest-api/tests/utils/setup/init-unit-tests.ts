@@ -6,8 +6,3 @@ import path from 'path';
 dotenv.config({
   path: path.resolve(__dirname, '../../config/unit.env'),
 });
-
-// Load environment variables generated from serverless.yml
-dotenv.config({
-  path: path.resolve(__dirname, '../../../.env'),
-});
