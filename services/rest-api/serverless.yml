@@ -239,6 +239,13 @@ functions:
           - ses:SendEmail
         Resource:
           - arn:aws:ses:${self:provider.region}:${self:custom.awsAccountId}:identity/${self:provider.environment.OUTBOUND_NOTIFICATIONS_EMAIL_FROM_ADDRESS}
+  # Amazon SES Sending Authorization Policy Examples: https://docs.aws.amazon.com/ses/latest/DeveloperGuide/sending-authorization-policy-examples.html#sending-authorization-policy-example-from
+  # ---
+  # Resource:
+  #   - '*'
+  # Condition:
+  #   StringEquals:
+  #     ses:FromAddres: ${self:provider.environment.OUTBOUND_NOTIFICATIONS_EMAIL_FROM_ADDRESS}
 
   # =================================================================
   # DynamoDB stream handlers
