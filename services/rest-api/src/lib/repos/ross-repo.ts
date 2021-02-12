@@ -138,6 +138,23 @@ export const updateRestaurantVisibility = async (
   }
 };
 
+export const updateRestaurantProfilePhotoPath = async (
+  restaurantId: string,
+  path: string,
+) => {
+  await ddb
+    .update({
+      TableName: ddbConfig.restaurantsTable,
+      Key: { id: restaurantId },
+      UpdateExpression: 'SET profilePhotoUrlPath = :profilePhotoUrlPath',
+      ExpressionAttributeValues: {
+        ':profilePhotoUrlPath': path,
+      },
+      ConditionExpression: 'attribute_exists(id)',
+    })
+    .promise();
+};
+
 export const deleteRestaurant = async (id: string) => {
   await ddb
     .delete({
