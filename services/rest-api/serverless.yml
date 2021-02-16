@@ -161,6 +161,21 @@ functions:
         Resource:
           - arn:aws:dynamodb:${self:provider.region}:${self:custom.awsAccountId}:table/${cf:${self:custom.infraStack}.DDBTableSeatings}*
 
+  httpSeatingsAccept:
+    handler: src/handlers/http/seatings/accept.handler
+    events:
+      - httpApi:
+          path: /restaurants/{restaurantId}/seatings/{seatingId}/accept
+          method: PATCH
+          authorizer: cognitoJwtAuthorizer
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:GetItem
+          - dynamodb:UpdateItem
+        Resource:
+          - arn:aws:dynamodb:${self:provider.region}:${self:custom.awsAccountId}:table/${cf:${self:custom.infraStack}.DDBTableSeatings}*
+
   # =================================================================
   # EventBridge handlers
   # =================================================================
