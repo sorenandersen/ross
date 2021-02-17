@@ -176,6 +176,21 @@ functions:
         Resource:
           - arn:aws:dynamodb:${self:provider.region}:${self:custom.awsAccountId}:table/${cf:${self:custom.infraStack}.DDBTableSeatings}*
 
+  httpSeatingsDecline:
+    handler: src/handlers/http/seatings/decline.handler
+    events:
+      - httpApi:
+          path: /restaurants/{restaurantId}/seatings/{seatingId}/decline
+          method: PATCH
+          authorizer: cognitoJwtAuthorizer
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:GetItem
+          - dynamodb:UpdateItem
+        Resource:
+          - arn:aws:dynamodb:${self:provider.region}:${self:custom.awsAccountId}:table/${cf:${self:custom.infraStack}.DDBTableSeatings}*
+
   # =================================================================
   # EventBridge handlers
   # =================================================================
