@@ -38,7 +38,7 @@ describe('`sqsDeliverEmail` Lambda function', () => {
   const BAD_EMAIL_ADDRESS = 'malformed email address';
 
   describe('[e2e]', () => {
-    it.skip('sends message to SES whenever valid address is supplied', async () => {
+    it('sends message to SES whenever valid address is supplied', async () => {
       // Arrange: setup good message
       const event = getSQSEvent([
         getTestEmailRequest(
