@@ -1,27 +1,17 @@
 import { handler } from '@svc/handlers/http/restaurants/update-visibility';
 import { apiGatewayConfig, AWS_REGION, cognitoConfig } from '@svc/config';
 import { ApiGatewayHandlerInvoker } from '@tests/utils/handler-invokers/api-gateway-handler-invoker';
-import { InvocationMode } from '@tests/utils/handler-invokers/types';
 import {
   AuthenticatedUser,
   TestUserManager,
 } from '@tests/utils/test-user-manager';
-import { generateTestRestaurant } from '@tests/utils/test-data-generator';
-import { assignRestaurantToUser } from '@svc/lib/auth/cognito-util';
-import {
-  getRestaurant,
-  putRestaurant,
-  deleteRestaurant,
-} from '@svc/lib/repos/ross-repo';
-import {
-  Region,
-  Restaurant,
-  RestaurantVisibility,
-  UserRole,
-} from '@svc/lib/types/ross-types';
+import { TestRestaurantManager } from '@tests/utils/test-restaurant-manager';
+import { getRestaurant } from '@svc/lib/repos/ross-repo';
+import { RestaurantVisibility } from '@svc/lib/types/ross-types';
 
 const HTTP_METHOD = 'PATCH';
 const API_PATH_TEMPLATE = '/restaurants/{id}/visibility';
+const TEST_DATA_PREFIX = 'updateRestaurantVisibilityTest';
 
 const apiInvoker = new ApiGatewayHandlerInvoker({
   baseUrl: apiGatewayConfig.getBaseUrl(),
@@ -32,71 +22,39 @@ const userManager = new TestUserManager({
   cognitoUserPoolId: cognitoConfig.userPoolId,
   cognitoUserPoolClientId: cognitoConfig.staffUserPoolClientId,
   region: AWS_REGION,
-  usernamePrefix: 'updateRestaurantVisibilityTest',
+  usernamePrefix: TEST_DATA_PREFIX,
 });
+let restaurantManager: TestRestaurantManager;
 
 describe('`PATCH /restaurants/{id}/visibility`', () => {
   let manager1Context: AuthenticatedUser;
-  let createdRestaurants: Restaurant[] = [];
-
-  const createTestRestaurant = async (prefix: string) => {
-    return createTestRestaurantWithManagerId(prefix, manager1Context.user.id);
-  };
-
-  const createTestRestaurantWithManagerId = async (
-    prefix: string,
-    managerId: string,
-  ) => {
-    const restaurant = generateTestRestaurant(
-      prefix,
-      'updateRestaurantVisibilityTest',
-      RestaurantVisibility.PRIVATE,
-      Region.NOT_SPECIFIED,
-      managerId,
-    );
-    await putRestaurant(restaurant);
-    createdRestaurants.push(restaurant);
-    return restaurant;
-  };
-
-  const deleteTestRestaurants = async () => {
-    await Promise.all(
-      createdRestaurants.map(async (r) => await deleteRestaurant(r.id)),
-    );
-    createdRestaurants.length = 0;
-  };
 
   beforeAll(async () => {
     manager1Context = await userManager.createAndSignInUser();
+
+    restaurantManager = new TestRestaurantManager({
+      userManager,
+      namePrefix: TEST_DATA_PREFIX,
+    });
   });
 
   afterAll(async () => {
-    await Promise.all([userManager.dispose(), deleteTestRestaurants()]);
+    await Promise.all([userManager.dispose(), restaurantManager.dispose()]);
   });
 
   it('returns 204 No Content when a valid visibility is provided', async () => {
     // **
     // Arrange
     // **
-    const testRestaurant = await createTestRestaurant('r1');
-    const newVisibility = RestaurantVisibility.PUBLIC;
-
-    // Update Cognito user to be a manager of the new restaurant
-    await assignRestaurantToUser(
-      manager1Context.user.id,
-      testRestaurant.id,
-      UserRole.MANAGER,
+    const {
+      restaurant: testRestaurant,
+      managerContext: testRestaurantManagerContext,
+    } = await restaurantManager.createRestaurant(
+      manager1Context,
+      'r1',
+      RestaurantVisibility.PRIVATE,
     );
-
-    // Update test user context to reflect new restaurant assignment
-    if (apiInvoker.invocationMode === InvocationMode.LOCAL_HANDLER) {
-      manager1Context.user.restaurantId = testRestaurant.id;
-      manager1Context.user.restaurantRole = UserRole.MANAGER;
-    } else {
-      // In e2e mode the user context is provided from JWT claims (cognitoJwtAuthorizer)
-      // in which case the users token must be refreshed after a restaurant assignment
-      manager1Context = await userManager.refreshUserToken(manager1Context);
-    }
+    const newVisibility = RestaurantVisibility.PUBLIC;
 
     // **
     // Act
@@ -108,7 +66,7 @@ describe('`PATCH /restaurants/{id}/visibility`', () => {
         pathParameters: { id: testRestaurant.id },
         body: { visibility: newVisibility },
       },
-      userContext: manager1Context,
+      userContext: testRestaurantManagerContext,
     });
 
     // **
@@ -126,25 +84,15 @@ describe('`PATCH /restaurants/{id}/visibility`', () => {
     // **
     // Arrange
     // **
-    const testRestaurant = await createTestRestaurant('r2');
-    const newVisibility = 'INVALID_VALUE';
-
-    // Update Cognito user to be a manager of the new restaurant
-    await assignRestaurantToUser(
-      manager1Context.user.id,
-      testRestaurant.id,
-      UserRole.MANAGER,
+    const {
+      restaurant: testRestaurant,
+      managerContext: testRestaurantManagerContext,
+    } = await restaurantManager.createRestaurant(
+      manager1Context,
+      'r2',
+      RestaurantVisibility.PRIVATE,
     );
-
-    // Update test user context to reflect new restaurant assignment
-    if (apiInvoker.invocationMode === InvocationMode.LOCAL_HANDLER) {
-      manager1Context.user.restaurantId = testRestaurant.id;
-      manager1Context.user.restaurantRole = UserRole.MANAGER;
-    } else {
-      // In e2e mode the user context is provided from JWT claims (cognitoJwtAuthorizer)
-      // in which case the users token must be refreshed after a restaurant assignment
-      manager1Context = await userManager.refreshUserToken(manager1Context);
-    }
+    const newVisibility = 'INVALID_VALUE';
 
     // **
     // Act
@@ -156,7 +104,7 @@ describe('`PATCH /restaurants/{id}/visibility`', () => {
         pathParameters: { id: testRestaurant.id },
         body: { visibility: newVisibility },
       },
-      userContext: manager1Context,
+      userContext: testRestaurantManagerContext,
     });
 
     // **
@@ -174,15 +122,19 @@ describe('`PATCH /restaurants/{id}/visibility`', () => {
     // **
     // Arrange
     // **
-    let testRestaurant = await createTestRestaurantWithManagerId(
+    const {
+      restaurant: testRestaurant,
+    } = await restaurantManager.createRestaurant(
+      manager1Context,
       'r3',
-      'another-manager-id',
+      RestaurantVisibility.PRIVATE,
     );
     const newVisibility = RestaurantVisibility.PUBLIC;
 
-    // NOTE: Deliberately omit assigning test restaurant to the user
+    // Create another user context to use for issuing the update
     // Purpose of this test is to verify that an update cannot take place
     // when the issuing user is not associated with the restaurant in question.
+    const manager2Context = await userManager.createAndSignInUser();
 
     // **
     // Act
@@ -194,7 +146,7 @@ describe('`PATCH /restaurants/{id}/visibility`', () => {
         pathParameters: { id: testRestaurant.id },
         body: { visibility: newVisibility },
       },
-      userContext: manager1Context,
+      userContext: manager2Context,
     });
 
     // **
