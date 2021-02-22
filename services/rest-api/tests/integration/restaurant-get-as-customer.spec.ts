@@ -5,12 +5,12 @@ import {
   AuthenticatedUser,
   TestUserManager,
 } from '@tests/utils/test-user-manager';
-import { generateTestRestaurant } from '@tests/utils/test-data-generator';
-import { putRestaurant, deleteRestaurant } from '@svc/lib/repos/ross-repo';
+import { TestRestaurantManager } from '@tests/utils/test-restaurant-manager';
 import { Restaurant, RestaurantVisibility } from '@svc/lib/types/ross-types';
 
 const HTTP_METHOD = 'GET';
 const API_PATH_TEMPLATE = '/restaurants/{id}';
+const TEST_DATA_PREFIX = 'getRestaurantAsCustomerTest';
 
 const apiInvoker = new ApiGatewayHandlerInvoker({
   baseUrl: apiGatewayConfig.getBaseUrl(),
@@ -21,50 +21,35 @@ const userManager = new TestUserManager({
   cognitoUserPoolId: cognitoConfig.userPoolId,
   cognitoUserPoolClientId: cognitoConfig.staffUserPoolClientId,
   region: AWS_REGION,
-  usernamePrefix: 'getRestaurantAsCustomerTest',
+  usernamePrefix: TEST_DATA_PREFIX,
 });
+let restaurantManager: TestRestaurantManager;
 
 describe('`GET /restaurants/{id}` as customer', () => {
+  let manager1Context: AuthenticatedUser;
   let user1Context: AuthenticatedUser;
-  let createdRestaurants: Restaurant[] = [];
-
-  const createTestRestaurant = async (
-    prefix: string,
-    visibility: RestaurantVisibility,
-  ) => {
-    const restaurant = generateTestRestaurant(
-      prefix,
-      'getRestaurantAsCustomerTest',
-      visibility,
-    );
-    await putRestaurant(restaurant);
-    createdRestaurants.push(restaurant);
-    return restaurant;
-  };
-
-  const deleteTestRestaurants = async () => {
-    await Promise.all(
-      createdRestaurants.map(async (r) => await deleteRestaurant(r.id)),
-    );
-    createdRestaurants.length = 0;
-  };
 
   beforeAll(async () => {
+    manager1Context = await userManager.createAndSignInUser();
     user1Context = await userManager.createAndSignInUser();
+
+    restaurantManager = new TestRestaurantManager({
+      userManager,
+      namePrefix: TEST_DATA_PREFIX,
+    });
   });
 
   afterAll(async () => {
-    await Promise.all([userManager.dispose(), deleteTestRestaurants()]);
+    await Promise.all([userManager.dispose(), restaurantManager.dispose()]);
   });
 
   it('returns 200 OK when requesting a valid and PUBLIC restaurant id', async () => {
     // **
     // Arrange
     // **
-    const testRestaurant = await createTestRestaurant(
-      'r1',
-      RestaurantVisibility.PUBLIC,
-    );
+    const {
+      restaurant: testRestaurant,
+    } = await restaurantManager.createRestaurant(manager1Context, 'r1');
 
     // **
     // Act
@@ -97,7 +82,10 @@ describe('`GET /restaurants/{id}` as customer', () => {
     // **
     // Arrange
     // **
-    const testRestaurant = await createTestRestaurant(
+    const {
+      restaurant: testRestaurant,
+    } = await restaurantManager.createRestaurant(
+      manager1Context,
       'r2',
       RestaurantVisibility.PRIVATE,
     );
