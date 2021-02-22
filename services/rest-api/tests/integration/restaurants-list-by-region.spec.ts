@@ -6,8 +6,7 @@ import {
   AuthenticatedUser,
   TestUserManager,
 } from '@tests/utils/test-user-manager';
-import { generateTestRestaurant } from '@tests/utils/test-data-generator';
-import { putRestaurant, deleteRestaurant } from '@svc/lib/repos/ross-repo';
+import { TestRestaurantManager } from '@tests/utils/test-restaurant-manager';
 import {
   PagedList,
   Region,
@@ -17,6 +16,7 @@ import {
 
 const HTTP_METHOD = 'GET';
 const API_PATH_TEMPLATE = '/restaurants/region/{region}';
+const TEST_DATA_PREFIX = 'listRestaurantsByRegionTest';
 
 const apiInvoker = new ApiGatewayHandlerInvoker({
   baseUrl: apiGatewayConfig.getBaseUrl(),
@@ -27,66 +27,69 @@ const userManager = new TestUserManager({
   cognitoUserPoolId: cognitoConfig.userPoolId,
   cognitoUserPoolClientId: cognitoConfig.staffUserPoolClientId,
   region: AWS_REGION,
-  usernamePrefix: 'listRestaurantsByRegionTest',
+  usernamePrefix: TEST_DATA_PREFIX,
 });
+let restaurantManager: TestRestaurantManager;
 
 describe('`GET /restaurants/region/{region}`', () => {
+  let manager1Context: AuthenticatedUser;
   let user1Context: AuthenticatedUser;
-  let createdRestaurants: Restaurant[] = [];
-
-  const createTestRestaurant = async (
-    prefix: string,
-    visibility: RestaurantVisibility,
-    region: Region,
-  ) => {
-    const restaurant = generateTestRestaurant(
-      prefix,
-      'listRestaurantsByRegionTest',
-      visibility,
-      region,
-    );
-    await putRestaurant(restaurant);
-    createdRestaurants.push(restaurant);
-    return restaurant;
-  };
-
-  const deleteTestRestaurants = async () => {
-    await Promise.all(
-      createdRestaurants.map(async (r) => await deleteRestaurant(r.id)),
-    );
-    createdRestaurants.length = 0;
-  };
 
   beforeAll(async () => {
+    manager1Context = await userManager.createAndSignInUser();
     user1Context = await userManager.createAndSignInUser();
+
+    restaurantManager = new TestRestaurantManager({
+      userManager,
+      namePrefix: TEST_DATA_PREFIX,
+    });
   });
 
   beforeEach(async () => {
-    await deleteTestRestaurants();
+    await restaurantManager.dispose();
   });
 
   afterAll(async () => {
-    await Promise.all([userManager.dispose(), deleteTestRestaurants()]);
+    await Promise.all([userManager.dispose(), restaurantManager.dispose()]);
   });
 
   it('only returns restaurants within the specified region', async () => {
     // **
     // Arrange
     // **
-    await createTestRestaurant('r1', RestaurantVisibility.PUBLIC, Region.FOO);
-    await createTestRestaurant('r2', RestaurantVisibility.PUBLIC, Region.FOO);
-    await createTestRestaurant('r3', RestaurantVisibility.PUBLIC, Region.BAR);
-    await createTestRestaurant('r4', RestaurantVisibility.PUBLIC, Region.BAR);
+    await restaurantManager.createRestaurant(
+      manager1Context,
+      'r1',
+      RestaurantVisibility.PUBLIC,
+      Region.FOO,
+    );
+    await restaurantManager.createRestaurant(
+      manager1Context,
+      'r2',
+      RestaurantVisibility.PUBLIC,
+      Region.FOO,
+    );
+    await restaurantManager.createRestaurant(
+      manager1Context,
+      'r3',
+      RestaurantVisibility.PUBLIC,
+      Region.BAR,
+    );
+    await restaurantManager.createRestaurant(
+      manager1Context,
+      'r4',
+      RestaurantVisibility.PUBLIC,
+      Region.BAR,
+    );
 
     // **
     // Act
     // **
-    const requestedRegion = Region.FOO;
     const response = await apiInvoker.invoke({
       event: {
         pathTemplate: API_PATH_TEMPLATE,
         httpMethod: HTTP_METHOD,
-        pathParameters: { region: requestedRegion },
+        pathParameters: { region: Region.FOO },
       },
       userContext: user1Context,
     });
@@ -96,27 +99,28 @@ describe('`GET /restaurants/region/{region}`', () => {
     // **
     expect(response.statusCode).toEqual(200);
     const result = response.body as PagedList<Restaurant>;
-    expect(result.items.length).toEqual(
-      createdRestaurants.filter((r) => r.region === requestedRegion).length,
-    );
+    expect(result.items.length).toEqual(2);
   });
 
   it('returns restaurants within the specified region, with case-insensitive handling of the provided region name', async () => {
     // **
     // Arrange
     // **
-    await createTestRestaurant('r8', RestaurantVisibility.PUBLIC, Region.FOO);
+    await restaurantManager.createRestaurant(
+      manager1Context,
+      'r8',
+      RestaurantVisibility.PUBLIC,
+      Region.FOO,
+    );
 
     // **
     // Act, now with a mixed case region name
     // **
-    const requestedRegion = Region.FOO;
-    const requestedRegionQueryStringParam = 'Foo';
     const response = await apiInvoker.invoke({
       event: {
         pathTemplate: API_PATH_TEMPLATE,
         httpMethod: HTTP_METHOD,
-        pathParameters: { region: requestedRegionQueryStringParam },
+        pathParameters: { region: 'Foo' },
       },
       userContext: user1Context,
     });
@@ -126,29 +130,46 @@ describe('`GET /restaurants/region/{region}`', () => {
     // **
     expect(response.statusCode).toEqual(200);
     const result = response.body as PagedList<Restaurant>;
-    expect(result.items.length).toEqual(
-      createdRestaurants.filter((r) => r.region === requestedRegion).length,
-    );
+    expect(result.items.length).toEqual(1);
   });
 
   it('only returns restaurants with visibility=PUBLIC', async () => {
     // **
     // Arrange
     // **
-    await createTestRestaurant('r11', RestaurantVisibility.PUBLIC, Region.FOO);
-    await createTestRestaurant('r12', RestaurantVisibility.PUBLIC, Region.FOO);
-    await createTestRestaurant('r13', RestaurantVisibility.PRIVATE, Region.FOO);
-    await createTestRestaurant('r14', RestaurantVisibility.PRIVATE, Region.FOO);
+    await restaurantManager.createRestaurant(
+      manager1Context,
+      'r11',
+      RestaurantVisibility.PUBLIC,
+      Region.FOO,
+    );
+    await restaurantManager.createRestaurant(
+      manager1Context,
+      'r12',
+      RestaurantVisibility.PUBLIC,
+      Region.FOO,
+    );
+    await restaurantManager.createRestaurant(
+      manager1Context,
+      'r13',
+      RestaurantVisibility.PRIVATE,
+      Region.FOO,
+    );
+    await restaurantManager.createRestaurant(
+      manager1Context,
+      'r14',
+      RestaurantVisibility.PRIVATE,
+      Region.FOO,
+    );
 
     // **
     // Act
     // **
-    const requestedRegion = Region.FOO;
     const response = await apiInvoker.invoke({
       event: {
         pathTemplate: API_PATH_TEMPLATE,
         httpMethod: HTTP_METHOD,
-        pathParameters: { region: requestedRegion },
+        pathParameters: { region: Region.FOO },
       },
       userContext: user1Context,
     });
@@ -158,11 +179,7 @@ describe('`GET /restaurants/region/{region}`', () => {
     // **
     expect(response.statusCode).toEqual(200);
     const result = response.body as PagedList<Restaurant>;
-    expect(result.items.length).toEqual(
-      createdRestaurants.filter(
-        (r) => r.visibility === RestaurantVisibility.PUBLIC,
-      ).length,
-    );
+    expect(result.items.length).toEqual(2);
   });
 
   it('returns an empty list when no restaurants exist within the specified region', async () => {
