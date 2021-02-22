@@ -5,27 +5,14 @@ import {
   AuthenticatedUser,
   TestUserManager,
 } from '@tests/utils/test-user-manager';
-import {
-  generateTestRestaurant,
-  generateTestSeating,
-} from '@tests/utils/test-data-generator';
-import {
-  putRestaurant,
-  deleteRestaurant,
-  getSeating,
-  deleteSeating,
-  putSeating,
-} from '@svc/lib/repos/ross-repo';
-import {
-  Restaurant,
-  RestaurantVisibility,
-  Seating,
-  SeatingStatus,
-} from '@svc/lib/types/ross-types';
+import { TestRestaurantManager } from '@tests/utils/test-restaurant-manager';
+import { getSeating } from '@svc/lib/repos/ross-repo';
+import { Restaurant, SeatingStatus } from '@svc/lib/types/ross-types';
 
 const HTTP_METHOD = 'DELETE';
 const API_PATH_TEMPLATE =
   '/restaurants/{restaurantId}/seatings/{seatingId}/cancel';
+const TEST_DATA_PREFIX = 'cancelSeatingTest';
 
 const apiInvoker = new ApiGatewayHandlerInvoker({
   baseUrl: apiGatewayConfig.getBaseUrl(),
@@ -36,80 +23,46 @@ const userManager = new TestUserManager({
   cognitoUserPoolId: cognitoConfig.userPoolId,
   cognitoUserPoolClientId: cognitoConfig.staffUserPoolClientId,
   region: AWS_REGION,
-  usernamePrefix: 'cancelSeatingTest',
+  usernamePrefix: TEST_DATA_PREFIX,
 });
+let restaurantManager: TestRestaurantManager;
 
 describe('`DELETE /restaurants/{restaurantId}/seatings/{seatingId}/cancel`', () => {
   let user1Context: AuthenticatedUser;
-  let createdRestaurants: Restaurant[] = [];
-  let createdSeatings: Seating[] = [];
-
-  const createTestRestaurant = async (prefix: string) => {
-    const restaurant = generateTestRestaurant(
-      prefix,
-      'cancelSeatingTest',
-      RestaurantVisibility.PUBLIC,
-    );
-    await putRestaurant(restaurant);
-    createdRestaurants.push(restaurant);
-    return restaurant;
-  };
-
-  const createTestSeating = async (
-    prefix: string,
-    restaurantId: string,
-    userId: string,
-    status: SeatingStatus,
-  ) => {
-    const seating = generateTestSeating(
-      prefix,
-      'cancelSeatingTest',
-      restaurantId,
-      userId,
-      status,
-    );
-    await putSeating(seating);
-    createdSeatings.push(seating);
-    return seating;
-  };
-
-  const deleteTestRestaurants = async () => {
-    await Promise.all(
-      createdRestaurants.map(async (r) => await deleteRestaurant(r.id)),
-    );
-    createdRestaurants.length = 0;
-  };
-
-  const deleteTestSeatings = async () => {
-    await Promise.all(
-      createdSeatings.map(
-        async (s) => await deleteSeating(s.id, s.restaurantId),
-      ),
-    );
-    createdSeatings.length = 0;
-  };
+  let manager1Context: AuthenticatedUser;
+  let testRestaurant: Restaurant;
 
   beforeAll(async () => {
     user1Context = await userManager.createAndSignInUser();
+    manager1Context = await userManager.createAndSignInUser();
+
+    restaurantManager = new TestRestaurantManager({
+      userManager,
+      namePrefix: TEST_DATA_PREFIX,
+    });
+
+    // Create test restaurant
+    const {
+      restaurant: r1,
+      managerContext: r1managerContext,
+    } = await restaurantManager.createRestaurant(manager1Context, 'r1');
+
+    testRestaurant = r1;
+    manager1Context = r1managerContext;
   });
 
   afterAll(async () => {
-    await Promise.all([
-      userManager.dispose(),
-      deleteTestRestaurants(),
-      deleteTestSeatings(),
-    ]);
+    await Promise.all([userManager.dispose(), restaurantManager.dispose()]);
   });
 
   it('returns 204 No Content when cancelling a seating currently in status PENDING', async () => {
     // **
     // Arrange
     // **
-    const testRestaurant = await createTestRestaurant('r1');
-    const testSeating = await createTestSeating(
-      's1',
+    const testSeating = await restaurantManager.createSeating(
       testRestaurant.id,
       user1Context.user.id,
+      's1',
       SeatingStatus.PENDING,
     );
 
@@ -143,11 +96,10 @@ describe('`DELETE /restaurants/{restaurantId}/seatings/{seatingId}/cancel`', () 
     // **
     // Arrange
     // **
-    const testRestaurant = await createTestRestaurant('r2');
-    const testSeating = await createTestSeating(
-      's2',
+    const testSeating = await restaurantManager.createSeating(
       testRestaurant.id,
       user1Context.user.id,
+      's2',
       SeatingStatus.ACCEPTED,
     );
 
@@ -181,12 +133,12 @@ describe('`DELETE /restaurants/{restaurantId}/seatings/{seatingId}/cancel`', () 
     // **
     // Arrange
     // **
-    const testRestaurant = await createTestRestaurant('r3');
-    const testSeating = await createTestSeating(
-      's3',
+    const initialAndExpectedStatus = SeatingStatus.CANCELLED;
+    const testSeating = await restaurantManager.createSeating(
       testRestaurant.id,
       user1Context.user.id,
-      SeatingStatus.CANCELLED,
+      's3',
+      initialAndExpectedStatus,
     );
 
     // **
@@ -212,20 +164,19 @@ describe('`DELETE /restaurants/{restaurantId}/seatings/{seatingId}/cancel`', () 
     // Get seating from DB and verify that status is CANCELLED
     const savedSeating = await getSeating(testSeating.id, testRestaurant.id);
     expect(savedSeating).toBeTruthy();
-    expect(savedSeating!.status).toEqual(SeatingStatus.CANCELLED);
+    expect(savedSeating!.status).toEqual(initialAndExpectedStatus);
   });
 
   it('returns 409 Conflict when cancelling a seating currently in status DECLINED', async () => {
     // **
     // Arrange
     // **
-    const initialSeatingStatus = SeatingStatus.DECLINED;
-    const testRestaurant = await createTestRestaurant('r4');
-    const testSeating = await createTestSeating(
-      's4',
+    const initialAndExpectedStatus = SeatingStatus.DECLINED;
+    const testSeating = await restaurantManager.createSeating(
       testRestaurant.id,
       user1Context.user.id,
-      initialSeatingStatus,
+      's4',
+      initialAndExpectedStatus,
     );
 
     // **
@@ -251,20 +202,19 @@ describe('`DELETE /restaurants/{restaurantId}/seatings/{seatingId}/cancel`', () 
     // Get seating from DB and verify that status has not changed
     const savedSeating = await getSeating(testSeating.id, testRestaurant.id);
     expect(savedSeating).toBeTruthy();
-    expect(savedSeating!.status).toEqual(initialSeatingStatus);
+    expect(savedSeating!.status).toEqual(initialAndExpectedStatus);
   });
 
   it('returns 409 Conflict when cancelling a seating currently in status SEATED', async () => {
     // **
     // Arrange
     // **
-    const initialSeatingStatus = SeatingStatus.SEATED;
-    const testRestaurant = await createTestRestaurant('r5');
-    const testSeating = await createTestSeating(
-      's5',
+    const initialAndExpectedStatus = SeatingStatus.SEATED;
+    const testSeating = await restaurantManager.createSeating(
       testRestaurant.id,
       user1Context.user.id,
-      initialSeatingStatus,
+      's5',
+      initialAndExpectedStatus,
     );
 
     // **
@@ -290,20 +240,19 @@ describe('`DELETE /restaurants/{restaurantId}/seatings/{seatingId}/cancel`', () 
     // Get seating from DB and verify that status has not changed
     const savedSeating = await getSeating(testSeating.id, testRestaurant.id);
     expect(savedSeating).toBeTruthy();
-    expect(savedSeating!.status).toEqual(initialSeatingStatus);
+    expect(savedSeating!.status).toEqual(initialAndExpectedStatus);
   });
 
   it('returns 409 Conflict when cancelling a seating currently in status CLOSED', async () => {
     // **
     // Arrange
     // **
-    const initialSeatingStatus = SeatingStatus.CLOSED;
-    const testRestaurant = await createTestRestaurant('r6');
-    const testSeating = await createTestSeating(
-      's6',
+    const initialAndExpectedStatus = SeatingStatus.CLOSED;
+    const testSeating = await restaurantManager.createSeating(
       testRestaurant.id,
       user1Context.user.id,
-      initialSeatingStatus,
+      's6',
+      initialAndExpectedStatus,
     );
 
     // **
@@ -329,20 +278,19 @@ describe('`DELETE /restaurants/{restaurantId}/seatings/{seatingId}/cancel`', () 
     // Get seating from DB and verify that status has not changed
     const savedSeating = await getSeating(testSeating.id, testRestaurant.id);
     expect(savedSeating).toBeTruthy();
-    expect(savedSeating!.status).toEqual(initialSeatingStatus);
+    expect(savedSeating!.status).toEqual(initialAndExpectedStatus);
   });
 
   it('returns 403 Forbidden when attempting cancellation of a seating not associated with the issuing user', async () => {
     // **
     // Arrange
     // **
-    const initialSeatingStatus = SeatingStatus.PENDING;
-    const testRestaurant = await createTestRestaurant('r7');
-    const testSeating = await createTestSeating(
-      's7',
+    const initialAndExpectedStatus = SeatingStatus.PENDING;
+    const testSeating = await restaurantManager.createSeating(
       testRestaurant.id,
       user1Context.user.id,
-      initialSeatingStatus,
+      's7',
+      initialAndExpectedStatus,
     );
 
     const user2Context = await userManager.createAndSignInUser();
@@ -370,7 +318,7 @@ describe('`DELETE /restaurants/{restaurantId}/seatings/{seatingId}/cancel`', () 
     // Get seating from DB and verify that status has not changed
     const savedSeating = await getSeating(testSeating.id, testRestaurant.id);
     expect(savedSeating).toBeTruthy();
-    expect(savedSeating!.status).toEqual(initialSeatingStatus);
+    expect(savedSeating!.status).toEqual(initialAndExpectedStatus);
   });
 
   it('returns 404 Not Found when attempting cancellation of a seating that does not exist', async () => {
