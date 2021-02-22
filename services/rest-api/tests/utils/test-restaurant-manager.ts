@@ -1,13 +1,23 @@
 import _ from 'lodash';
 import uuid from '@svc/lib/uuid';
 import { assignRestaurantToUser } from '@svc/lib/auth/cognito-util';
-import { putRestaurant, deleteRestaurant } from '@svc/lib/repos/ross-repo';
-import { generateTestRestaurant } from './test-data-generator';
+import {
+  putRestaurant,
+  deleteRestaurant,
+  deleteSeating,
+  putSeating,
+} from '@svc/lib/repos/ross-repo';
+import {
+  generateTestRestaurant,
+  generateTestSeating,
+} from './test-data-generator';
 import { AuthenticatedUser, TestUserManager } from './test-user-manager';
 import {
   Region,
   Restaurant,
   RestaurantVisibility,
+  Seating,
+  SeatingStatus,
   UserRole,
 } from '@svc/lib/types/ross-types';
 
@@ -23,6 +33,7 @@ export interface TestRestaurantManagerConfig {
  */
 export class TestRestaurantManager {
   private readonly createdRestaurants: Restaurant[] = [];
+  private readonly createdSeatings: Seating[] = [];
 
   constructor(private readonly config: TestRestaurantManagerConfig) {}
 
@@ -77,13 +88,37 @@ export class TestRestaurantManager {
     );
   }
 
+  async createSeating(
+    restaurantId: string,
+    userId: string,
+    shortname: string = uuid(),
+    status: SeatingStatus,
+  ) {
+    const seating = generateTestSeating(
+      shortname,
+      this.config.namePrefix,
+      restaurantId,
+      userId,
+      status,
+    );
+    await putSeating(seating);
+    this.createdSeatings.push(seating);
+    return seating;
+  }
+
   /**
    * Delete all restaurants in DynamoDB that were created by this instance.
    */
   async dispose() {
     await Promise.all(
-      this.createdRestaurants.map(async (r) => await deleteRestaurant(r.id)),
+      _.concat(
+        this.createdRestaurants.map(async (r) => await deleteRestaurant(r.id)),
+        this.createdSeatings.map(
+          async (s) => await deleteSeating(s.id, s.restaurantId),
+        ),
+      ),
     );
     this.createdRestaurants.length = 0;
+    this.createdSeatings.length = 0;
   }
 }
