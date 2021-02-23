@@ -31,14 +31,14 @@ const getTestEmailRequest = (toAddress: string, subject: string) => {
   return msg;
 };
 
-describe('`sqsDeliverEmail` Lambda function', () => {
+describe.skip('`sqsDeliverEmail` Lambda function', () => {
   jest.setTimeout(120000);
 
   const GOOD_EMAIL_ADDRESS = 'success@simulator.amazonses.com'; // https://docs.aws.amazon.com/ses/latest/DeveloperGuide/send-email-simulator.html
   const BAD_EMAIL_ADDRESS = 'malformed email address';
 
   describe('[e2e]', () => {
-    it.skip('sends message to SES whenever valid address is supplied', async () => {
+    it('sends message to SES whenever valid address is supplied', async () => {
       // Arrange: setup good message
       const event = getSQSEvent([
         getTestEmailRequest(
