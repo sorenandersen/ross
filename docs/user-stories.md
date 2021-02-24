@@ -30,12 +30,12 @@ There are 2 types of users in the system:
 - [x] I can signup using my email address and password from the StaffApp
 - [x] I can create a new Restaurant, setting a name, description and a region from a preconfigured list of supported regions.
 - [x] I can mark restaurants that I own as publicly available.
-- [ ] I can upload a profile photo for restaurants that I own
+- [x] I can upload a profile photo for restaurants that I own
 - [x] I will receive an email notification whenever a customer creates a seating at my restaurant
 - [x] I will receive an email notification whenever a customer cancels a seating at my restaurant
 - [ ] I will receive a notification whenever a seated customer hails attention (this would typically be usually be implemented as a mobile push message, but we'll use email for v1)
 - [ ] I can view a list of current and upcoming Seatings at my restaurant ordered by seatingTime (filtered by >= today)
-- [ ] I can accept or decline a pending Seating request
+- [x] I can accept or decline a pending Seating request
 - [ ] When a customer with a reserved Seating arrives at the restaurant, I can assign a tableNumber to their seating and set their status to "SEATED"
 - [ ] When a customer arrives at the restaurant, I want to view a summary of their previous visits to my restaurant so I have some information to greet them with (e.g. number of visits within last 6 months, date of last visit)
 - [ ] I can close a Seating whenever a Customer has finished their meal and vacated the table
