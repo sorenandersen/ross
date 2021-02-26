@@ -196,6 +196,33 @@ export const getSeating = async (seatingId: string, restaurantId: string) => {
   return response.Item as Seating | undefined;
 };
 
+export const listSeatingsByRestaurant = async (
+  restaurantId: string,
+  queryOptions: PagedQueryOptions = {},
+): Promise<PagedList<Seating>> => {
+  const response = await ddb
+    .query({
+      TableName: ddbConfig.seatingsTable,
+      //IndexName: 'TODO',
+      KeyConditionExpression: 'restaurantId = :restaurantId',
+      ExpressionAttributeValues: {
+        ':restaurantId': restaurantId,
+      },
+      Limit: queryOptions.limit,
+      ...(queryOptions.lastEvaluatedKey && {
+        ExclusiveStartKey: {
+          id: queryOptions.lastEvaluatedKey,
+        },
+      }),
+    })
+    .promise();
+
+  return {
+    lastEvaluatedKey: response.LastEvaluatedKey?.id,
+    items: response.Items as Seating[],
+  };
+};
+
 export const updateSeatingStatus = async (
   seatingId: string,
   restaurantId: string,

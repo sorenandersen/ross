@@ -55,13 +55,20 @@ export const generateTestSeating = (
   restaurantId: string,
   userId: string,
   status: SeatingStatus,
+  seatingTime: Date | undefined = undefined,
 ) => {
+  // If not provided, set the seating time to a week from now
+  if (!seatingTime) {
+    seatingTime = new Date();
+    seatingTime.setDate(seatingTime.getDate() + 7);
+  }
+
   return {
     id: `id-${prefix}-${testSuiteName}`,
     restaurantId,
     userId,
     status,
-    seatingTime: new Date().toISOString(),
+    seatingTime: seatingTime.toISOString(),
     numSeats: 2,
     notes: `notes-${prefix}-${testSuiteName}`,
     createdAt: new Date().toISOString(),

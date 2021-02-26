@@ -132,6 +132,18 @@ functions:
           - arn:aws:dynamodb:${self:provider.region}:${self:custom.awsAccountId}:table/${cf:${self:custom.infraStack}.DDBTableRestaurants}*
 
   # === /restaurants/{restaurantId}/seatings
+  httpSeatingsListByRestaurant:
+    handler: src/handlers/http/seatings/list-by-restaurant.handler
+    events:
+      - httpApi:
+          path: /restaurants/{restaurantId}/seatings
+          method: GET
+          authorizer: cognitoJwtAuthorizer
+    iamRoleStatements:
+      - Effect: Allow
+        Action: dynamodb:Query
+        Resource: arn:aws:dynamodb:${self:provider.region}:${self:custom.awsAccountId}:table/${cf:${self:custom.infraStack}.DDBTableSeatings}*
+
   httpSeatingsCreate:
     handler: src/handlers/http/seatings/create.handler
     events:

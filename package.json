@@ -19,7 +19,8 @@
     "test-all": "npm run test-unit && npm run test-integration && npm run test-e2e",
     "slsdt": "sls-dev-tools",
     "test-manual-create-user": "cd ./services/rest-api && TEST_MODE=REMOTE_TRIGGER jest -c jest.config.e2e.js -t 'returns user profile fields for logged in users'",
-    "test-manual-create-user-restaurant": "cd ./services/rest-api && TEST_MODE=REMOTE_TRIGGER jest -c jest.config.e2e.js -t 'creates a new Restaurant, refreshes users Cognito token and subsequent GET returns the restaurant'"
+    "test-manual-create-user-restaurant": "cd ./services/rest-api && TEST_MODE=REMOTE_TRIGGER jest -c jest.config.e2e.js -t 'creates a new Restaurant, refreshes users Cognito token and subsequent GET returns the restaurant'",
+    "test-wip": "cd ./services/rest-api && TEST_MODE=REMOTE_TRIGGER jest -c jest.config.e2e.js -t '`GET /restaurants/{restaurantId}/seatings`'"
   },
   "repository": {
     "type": "git",

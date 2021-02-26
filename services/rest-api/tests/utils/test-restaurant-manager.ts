@@ -93,6 +93,7 @@ export class TestRestaurantManager {
     userId: string,
     shortname: string = uuid(),
     status: SeatingStatus,
+    seatingTime: Date | undefined = undefined,
   ) {
     const seating = generateTestSeating(
       shortname,
@@ -100,6 +101,7 @@ export class TestRestaurantManager {
       restaurantId,
       userId,
       status,
+      seatingTime,
     );
     await putSeating(seating);
     this.createdSeatings.push(seating);
