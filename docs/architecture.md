@@ -46,9 +46,7 @@ The application supports three user roles:
 - StaffUsers
 - Managers, i.e. restaurant owner
 
-Three Cognito groups are used to manage the permissions of these roles.
-
-Two Cognito app clients ensures access to Cognito API operations for client applications (frontend's) consuming the ROSS API.
+Cognito custom attributes are used to manage the permissions of these roles.
 
 Generally, Cognito will be used to store login credentials only and other user attributes and preferences will be stored in the DynamoDB "Users" table. However, to simplify the registring process for StaffUsers and Managers, the following custom attributes exist for StaffUsers and Managers in Cognito:
 
@@ -56,6 +54,8 @@ Generally, Cognito will be used to store login credentials only and other user a
 - restaurantRole
 
 _restaurantId_ will hold the id of the restaurant where the user is engaged. _restaurantRole_ can hold values STAFF or MANAGER.
+
+Two Cognito app clients ensures access to Cognito API operations for client applications (frontend's) consuming the ROSS API.
 
 ## Client apps
 

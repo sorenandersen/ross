@@ -10,12 +10,6 @@ New users sign up directly via Cognito API calls (or the hosted web UI). The [Po
 
 ![](./img/use-case-create-user.png)
 
-First draft; kept here as a reference to discuss how to go about setting the users region. Maybe by a _"Click here to finish setting up your user profile"_ link in the welcome email?
-
-**NOTE: Work in progress**
-
-![](./img/use-case-create-user-wip.png)
-
 ## Create seating
 
 Logged-in customers can create new seatings with a paticular restaurant. When persisted, the Customer will receive an email acknowledgement and all StaffUsers at the restaurant will be notififed via email.
