@@ -53,6 +53,8 @@ Resources:
           AttributeType: S
         - AttributeName: restaurantId
           AttributeType: S
+        - AttributeName: seatingTime
+          AttributeType: S
       KeySchema:
         - AttributeName: restaurantId
           KeyType: HASH
@@ -60,6 +62,15 @@ Resources:
           KeyType: RANGE
       StreamSpecification:
         StreamViewType: NEW_AND_OLD_IMAGES
+      GlobalSecondaryIndexes:
+        - IndexName: SeatingsByRestaurantAndSeatingTime
+          KeySchema:
+            - AttributeName: restaurantId
+              KeyType: HASH
+            - AttributeName: seatingTime
+              KeyType: RANGE
+          Projection:
+            ProjectionType: ALL
 
   # Dead letter queue for failed DDB stream events
   DDBSeatingsStreamDLQ:

@@ -63,22 +63,24 @@ describe('`GET /restaurants/{restaurantId}/seatings`', () => {
     // Arrange
     // **
     // Future seating
-    const seatingTime1 = new Date();
-    seatingTime1.setDate(seatingTime1.getDate() + 7);
+    const futureSeatingTime = new Date();
+    futureSeatingTime.setDate(futureSeatingTime.getDate() + 7);
     await restaurantManager.createSeating(
       testRestaurant.id,
       'some-user-id',
       's1-1',
       SeatingStatus.PENDING,
+      futureSeatingTime,
     );
     // Past seating
-    const seatingTime2 = new Date();
-    seatingTime2.setDate(seatingTime2.getDate() - 1);
+    const pastSeatingTime = new Date();
+    pastSeatingTime.setDate(pastSeatingTime.getDate() - 1);
     await restaurantManager.createSeating(
       testRestaurant.id,
       'some-user-id',
       's1-2',
       SeatingStatus.PENDING,
+      pastSeatingTime,
     );
 
     // **

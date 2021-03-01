@@ -1,3 +1,4 @@
+import moment from 'moment-mini';
 import log from '@dazn/lambda-powertools-logger';
 import { wrap } from '@svc/lib/middleware/apigw-error-handler';
 import createError from 'http-errors';
@@ -39,7 +40,10 @@ export const handler = wrap(async (event) => {
     lastEvaluatedKey: event.queryStringParameters?.lastEvaluatedKey,
   };
 
-  const response = await listSeatingsByRestaurant(restaurantId);
+  // Filter by >= today
+  const seatingTime = moment().startOf('day').toISOString();
+
+  const response = await listSeatingsByRestaurant(restaurantId, seatingTime);
 
   return {
     statusCode: 200,

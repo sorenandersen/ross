@@ -198,15 +198,18 @@ export const getSeating = async (seatingId: string, restaurantId: string) => {
 
 export const listSeatingsByRestaurant = async (
   restaurantId: string,
+  seatingTime: string,
   queryOptions: PagedQueryOptions = {},
 ): Promise<PagedList<Seating>> => {
   const response = await ddb
     .query({
       TableName: ddbConfig.seatingsTable,
-      //IndexName: 'TODO',
-      KeyConditionExpression: 'restaurantId = :restaurantId',
+      IndexName: 'SeatingsByRestaurantAndSeatingTime',
+      KeyConditionExpression:
+        'restaurantId = :restaurantId AND seatingTime >= :seatingTime',
       ExpressionAttributeValues: {
         ':restaurantId': restaurantId,
+        ':seatingTime': seatingTime,
       },
       Limit: queryOptions.limit,
       ...(queryOptions.lastEvaluatedKey && {
